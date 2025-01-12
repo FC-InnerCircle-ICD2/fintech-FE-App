@@ -7,6 +7,7 @@ import { withSuspense } from './providers/with-suspense';
 import { ROUTES } from '@shared/config/routes';
 import { SplashPage } from '@pages/basic/splash';
 import ModalUITest from '@pages/test/ModalUITest';
+import ApiHookTest from '@pages/test/ApiHookTest';
 
 // Lazy load pages
 const LoginPage = lazy(() =>
@@ -58,6 +59,10 @@ const routes = {
     {
       path: '/modal-test',
       element: <ModalUITest />,
+    },
+    {
+      path: '/api-hook-test',
+      element: <ApiHookTest />,
     },
   ],
 };

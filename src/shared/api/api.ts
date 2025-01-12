@@ -16,6 +16,7 @@ const httpClient = ky.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  credentials: 'include',
   hooks: {
     /**
      * 요청 전 헤더에 인증 토큰을 추가합니다.
