@@ -14,7 +14,7 @@ const QRPage = () => {
     // 임시 데이터
     const result_dummy = {
       token: DUMMY_API_CONFIG.ORDER_TOKEN,
-      expiredAt: 171232323232,
+      expiredAt: 1810025200000,
     };
     const state = {
       token: result_dummy.token,

@@ -30,11 +30,12 @@ export const QRScanWidget = ({ onScanSuccess }: QRScanWidgetProps) => {
   }, []);
 
   const updateViewportRatio = () => {
+    const MAX_WIDTH = 600;
     const vh = window.innerHeight;
-    const vw = window.innerWidth;
+    const vw = Math.min(window.innerWidth, MAX_WIDTH);
     setViewportRatio({
       width: 100,
-      height: ((vh - 62) / vw) * 100,
+      height: (vh / vw) * 100,
     });
   };
 
@@ -56,9 +57,8 @@ export const QRScanWidget = ({ onScanSuccess }: QRScanWidgetProps) => {
       }
     }
   };
-
   return (
-    <div className='relative h-screen'>
+    <div className='relative h-[calc(100dvh-4rem-3.5rem)]'>
       <div className='absolute inset-0 overflow-hidden'>
         <Scanner
           onScan={onScanSuccess}

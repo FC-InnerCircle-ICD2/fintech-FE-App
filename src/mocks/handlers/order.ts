@@ -40,7 +40,31 @@ export const orderHandler = [
     });
 
     return new HttpResponse(stream, {
-      headers: { 'Content-Type': 'text/event-stream' },
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        Connection: 'keep-alive',
+      },
+    });
+  }),
+
+  http.get(API_ENDPOINTS.PAYMENT.ORDER.SSE_TEMP, () => {
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      start(controller) {
+        const message = 'data: {"message": "success"}\n\n';
+        setTimeout(() => {
+          controller.enqueue(encoder.encode(message));
+          controller.close();
+        }, 3000); // 3초 간격으로 메시지 전송
+      },
+    });
+
+    return new HttpResponse(stream, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+      },
     });
   }),
 ];
