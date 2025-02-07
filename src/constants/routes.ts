@@ -6,6 +6,7 @@ export const ROUTES = {
     QR: '/payment/qr',
     DETAIL: '/payment/detail',
     COMPLETE: '/payment/complete',
+    DEEPLINK: '/payment/deeplink/success',
   },
   TRANSACTIONS: {
     LIST: '/transactions',
