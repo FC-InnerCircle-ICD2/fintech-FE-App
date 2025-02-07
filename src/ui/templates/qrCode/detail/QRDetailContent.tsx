@@ -66,7 +66,7 @@ const QRDetailContent = ({ orderData }: QRDetailCardProps) => {
       )}
       {!isPaymentLoading && !messages && (
         <>
-          <img src='/logo.png' className='w-16' alt='Logo' />
+          <img src='/logo.png' className='w-14 mb-8' alt='Logo' />
           <p className=' text-2xl font-medium'>결제를 하시겠습니까?</p>
 
           <div role='separator' className='mb-8' />
