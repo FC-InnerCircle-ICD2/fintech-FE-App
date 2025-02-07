@@ -11,7 +11,7 @@ const ErrorComponent = ({ message = '다시 시도해주세요' }) => {
   }, []);
 
   return (
-    <div className='flex flex-col items-center justify-center h-screen'>
+    <div className='flex flex-col items-center justify-center h-full'>
       <p className='text-red-600 text-lg mb-4'>{message}</p>
       <button
         onClick={() => window.location.reload()}
