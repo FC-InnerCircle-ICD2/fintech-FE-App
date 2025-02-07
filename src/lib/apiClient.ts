@@ -82,7 +82,7 @@ export const api = {
     options?: Options,
   ): Promise<ApiResponse<T | null>> => {
     try {
-      const response = await httpClient.put(url, { json: body, ...options });
+      const response = await httpClient.post(url, { json: body, ...options });
       const json = await response.json<ApiResponse<T>>();
       return response.body
         ? json
