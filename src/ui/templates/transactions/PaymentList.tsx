@@ -18,7 +18,7 @@ const PaymentList = () => {
   }
 
   return (
-    <ul>
+    <ul className='pt-6 pb-24'>
       {data.transactions?.map((list) => (
         <li
           key={list.id}
