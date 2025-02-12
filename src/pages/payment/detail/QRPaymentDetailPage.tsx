@@ -30,7 +30,7 @@ const QRPaymentDetailPage = () => {
     console.log('expiredAt', expiredAt);
     if (!expiredAt) return;
 
-    const isExpired = new Date().getTime() > Number(expiredAt);
+    const isExpired = Date.now() > new Date(expiredAt).getTime();
     if (isExpired && !isOpenDialogRef.current) {
       isOpenDialogRef.current = true;
       openDialog('alert', {

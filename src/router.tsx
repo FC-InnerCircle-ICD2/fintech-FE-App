@@ -46,6 +46,12 @@ const CardPage = lazy(() =>
   import('@pages/card/list/CardPage').then((m) => ({ default: m.default })),
 );
 
+const QRDeepLinkSuccessPage = lazy(() =>
+  import('@pages/payment/detail/QRDeepLinkSuccessPage').then((m) => ({
+    default: m.default,
+  })),
+);
+
 const SuspendedLoginPage = withSuspense(LoginPage);
 const SuspendedSignupPage = withSuspense(SignupPage);
 
@@ -56,6 +62,7 @@ const SuspendedQRPaymentCompletePage = withSuspense(QRPaymentCompletePage);
 const SuspendedTransactionsPage = withSuspense(TransactionsPage);
 const SuspendedTransactionDetailPage = withSuspense(TransactionDetailPage);
 const SuspendedCardPage = withSuspense(CardPage);
+const SUspendedQRDeepLinkSUccess = withSuspense(QRDeepLinkSuccessPage);
 
 // 라우트 설정
 const routes = {
@@ -75,6 +82,10 @@ const routes = {
         {
           path: ROUTES.PAYMENT.COMPLETE,
           element: <SuspendedQRPaymentCompletePage />,
+        },
+        {
+          path: ROUTES.PAYMENT.DEEPLINK,
+          element: <SUspendedQRDeepLinkSUccess />,
         },
         {
           path: ROUTES.TRANSACTIONS.DETAIL,

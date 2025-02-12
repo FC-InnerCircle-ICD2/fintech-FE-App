@@ -11,7 +11,7 @@ const PageLayout = ({ className, hasNav, ...rest }: MainLayoutProps) => {
   return (
     <div
       className={cn(
-        hasNav ? 'min-h-[calc(100dvh-4rem-3.5rem)]' : 'min-h-[100dvh]',
+        hasNav ? 'min-h-[calc(100dvh-4rem-3.5rem)] grid' : 'min-h-[100dvh]',
         theme.safe_area_inline_padding,
         className,
       )}
