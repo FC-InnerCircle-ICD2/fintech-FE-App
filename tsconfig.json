@@ -7,14 +7,17 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@app/*": ["./src/app/*"],
-      "@assets/*": ["./src/assets/*"],
-      "@entities/*": ["./src/entities/*"],
-      "@features/*": ["./src/features/*"],
+      "@api/*": ["./src/api/*"],
+      "@constants/*": ["./src/constants/*"],
+      "@hooks/*": ["./src/hooks/*"],
       "@lib/*": ["./src/lib/*"],
+      "@mocks/*": ["./src/mocks/*"],
       "@pages/*": ["./src/pages/*"],
-      "@shared/*": ["./src/shared/*"],
-      "@widgets/*": ["./src/widgets/*"]
+      "@providers/*": ["./src/providers/*"],
+      "@stores/*": ["./src/stores/*"],
+      "@styles/*": ["./src/styles/*"],
+      "@type/*": ["src/types/*"],
+      "@ui/*": ["./src/ui/*"]
     }
   }
 }

@@ -1,6 +1,6 @@
-import useModal from '@shared/hooks/useModal';
-import type { TModalOptions } from '@shared/stores/modal';
-import { Button } from '@shared/ui/shadcn/components/ui/button';
+import useModal from '@hooks/useModal';
+import type { TModalOptions } from '@stores/modal';
+import { Button } from '@lib/shadcn/components/ui/button';
 
 const 모달_옵션_테이블 = [
   {

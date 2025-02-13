@@ -700,6 +700,16 @@
   resolved "https://registry.npmjs.org/@types/cookie/-/cookie-0.6.0.tgz"
   integrity sha512-4Kh9a6B2bQciAhf7FSuMRRkUWecJgJu9nPnx3yzpsfXX/c50REIqpHY4C82bXP90qrLtXtkDxTZosYO3UpOwlA==
 
+"@types/dom-webcodecs@0.1.11":
+  version "0.1.11"
+  resolved "https://registry.yarnpkg.com/@types/dom-webcodecs/-/dom-webcodecs-0.1.11.tgz#2e36e5cc71789551f107e2fe15d956845fa19567"
+  integrity sha512-yPEZ3z7EohrmOxbk/QTAa0yonMFkNkjnVXqbGb7D4rMr+F1dGQ8ZUFxXkyLLJuiICPejZ0AZE9Rrk9wUCczx4A==
+
+"@types/emscripten@^1.39.13":
+  version "1.39.13"
+  resolved "https://registry.yarnpkg.com/@types/emscripten/-/emscripten-1.39.13.tgz#afeb1648648dc096efe57983e20387627306e2aa"
+  integrity sha512-cFq+fO/isvhvmuP/+Sl4K4jtU6E23DoivtbO4r50e3odaxAiVdbfSYRDdJ4gCdxx+3aRjhphS5ZMwIH4hFy/Cw==
+
 "@types/estree@1.0.6", "@types/estree@^1.0.0", "@types/estree@^1.0.6":
   version "1.0.6"
   resolved "https://registry.npmjs.org/@types/estree/-/estree-1.0.6.tgz"
@@ -892,6 +902,14 @@
     loupe "^3.1.2"
     tinyrainbow "^1.2.0"
 
+"@yudiel/react-qr-scanner@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@yudiel/react-qr-scanner/-/react-qr-scanner-2.1.0.tgz#f71fc5b8d3e2d68d536fadff0d86b16eb66ea212"
+  integrity sha512-O3832Qk8YU+vnLO+tsJalfQcXRZ1pOB9l6WrI3OdwpxkQEzukpT48M6Hc2vUUe1rFE6qapQnV3RGRFNM0S7CHw==
+  dependencies:
+    barcode-detector "^2.3.1"
+    webrtc-adapter "9.0.1"
+
 acorn-jsx@^5.3.2:
   version "5.3.2"
   resolved "https://registry.npmjs.org/acorn-jsx/-/acorn-jsx-5.3.2.tgz"
@@ -992,6 +1010,14 @@ balanced-match@^1.0.0:
   version "1.0.2"
   resolved "https://registry.npmjs.org/balanced-match/-/balanced-match-1.0.2.tgz"
   integrity sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==
+
+barcode-detector@^2.3.1:
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/barcode-detector/-/barcode-detector-2.3.1.tgz#91d0d4e3b913d87f94bae5d024b6b9b5cedc420c"
+  integrity sha512-D9KEtrquS1tmBZduxBZl8qublIKnRrFqD8TAHDYcLCyrHQBo+vitIxmjMJ61LvXjXyAMalOlO7q0Oh/9Rl2PbQ==
+  dependencies:
+    "@types/dom-webcodecs" "0.1.11"
+    zxing-wasm "1.3.4"
 
 binary-extensions@^2.0.0:
   version "2.3.0"
@@ -2398,6 +2424,11 @@ scheduler@^0.23.2:
   dependencies:
     loose-envify "^1.1.0"
 
+sdp@^3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/sdp/-/sdp-3.2.0.tgz#8961420552b36663b4d13ddba6f478d1461896a5"
+  integrity sha512-d7wDPgDV3DDiqulJjKiV2865wKsJ34YI+NDREbm+FySq6WuKOikwyNQcm+doLAZ1O6ltdO0SeKle2xMpN3Brgw==
+
 semver@^7.6.0:
   version "7.6.3"
   resolved "https://registry.npmjs.org/semver/-/semver-7.6.3.tgz"
@@ -2818,6 +2849,13 @@ vitest@^2.1.8:
     vite-node "2.1.8"
     why-is-node-running "^2.3.0"
 
+webrtc-adapter@9.0.1:
+  version "9.0.1"
+  resolved "https://registry.yarnpkg.com/webrtc-adapter/-/webrtc-adapter-9.0.1.tgz#d4efa22ca9604cb2c8cdb9e492815ba37acfa0b2"
+  integrity sha512-1AQO+d4ElfVSXyzNVTOewgGT/tAomwwztX/6e3totvyyzXPvXIIuUUjAmyZGbKBKbZOXauuJooZm3g6IuFuiNQ==
+  dependencies:
+    sdp "^3.2.0"
+
 which@^2.0.1:
   version "2.0.2"
   resolved "https://registry.npmjs.org/which/-/which-2.0.2.tgz"
@@ -2925,3 +2963,10 @@ zustand@^5.0.2:
   version "5.0.2"
   resolved "https://registry.yarnpkg.com/zustand/-/zustand-5.0.2.tgz#f7595ada55a565f1fd6464f002a91e701ee0cfca"
   integrity sha512-8qNdnJVJlHlrKXi50LDqqUNmUbuBjoKLrYQBnoChIbVph7vni+sY+YpvdjXG9YLd/Bxr6scMcR+rm5H3aSqPaw==
+
+zxing-wasm@1.3.4:
+  version "1.3.4"
+  resolved "https://registry.yarnpkg.com/zxing-wasm/-/zxing-wasm-1.3.4.tgz#4bc45b78dc3594278bb0c24233bfb035ca9efab1"
+  integrity sha512-9l0QymyATF19FmI92QHe7Dayb+BUN7P7zFAt5iDgTnUf0dFWokz6GVA/W9EepjW5q8s3e89fIE/7uxpX27yqEQ==
+  dependencies:
+    "@types/emscripten" "^1.39.13"

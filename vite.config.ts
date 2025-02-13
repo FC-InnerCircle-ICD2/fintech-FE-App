@@ -6,16 +6,20 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      '@app': path.resolve(__dirname, './src/app'),
-      '@assets': path.resolve(__dirname, './src/assets'),
-      '@entities': path.resolve(__dirname, './src/entities'),
-      '@features': path.resolve(__dirname, './src/features'),
+      '@api': path.resolve(__dirname, './src/api'),
+      '@constants': path.resolve(__dirname, './src/constants'),
+      '@hooks': path.resolve(__dirname, './src/hooks'),
       '@lib': path.resolve(__dirname, './src/lib'),
+      '@mocks': path.resolve(__dirname, './src/mocks'),
       '@pages': path.resolve(__dirname, './src/pages'),
-      '@shared': path.resolve(__dirname, './src/shared'),
-      '@widgets': path.resolve(__dirname, './src/widgets'),
+      '@providers': path.resolve(__dirname, './src/providers'),
+      '@stores': path.resolve(__dirname, './src/stores'),
+      '@styles': path.resolve(__dirname, './src/styles'),
+      '@type': path.resolve(__dirname, './src/types'),
+      '@ui': path.resolve(__dirname, './src/ui'),
     },
   },
+
   define: {
     'process.env.NODE_ENV': JSON.stringify(
       process.env.NODE_ENV || 'development',

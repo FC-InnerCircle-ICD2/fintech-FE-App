@@ -1,6 +1,6 @@
 // src/setupTests.ts
 import { beforeAll, afterEach, afterAll } from 'vitest';
-import { server } from '@app/mocks/server';
+import { server } from '@mocks/server';
 // 모든 테스트 전에 MSW 서버를 시작합니다.
 beforeAll(() => server.listen({ onUnhandledRequest: 'warn' }));
 

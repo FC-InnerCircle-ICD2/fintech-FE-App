@@ -2,9 +2,9 @@ import {
   useOrderInfo,
   useRequestPayment,
   useCancelPayment,
-  useHistoryList,
-  useHistoryDetail,
-} from '@shared/hooks/queries/usePayments';
+  useTransactionList,
+  useTransactionDetail,
+} from '@hooks/queries/usePayments';
 
 const ApiHookTest = () => {
   // 1. 주문 정보 조회 테스트
@@ -18,8 +18,8 @@ const ApiHookTest = () => {
     useCancelPayment();
 
   // 3. 결제 내역 조회 테스트
-  const { data: historyList } = useHistoryList();
-  const { data: historyDetail } = useHistoryDetail('history-123');
+  const { data: transactionList } = useTransactionList();
+  const { data: transactionDetail } = useTransactionDetail('transaction-123');
 
   // 결제 요청 핸들러
   const handlePaymentRequest = () => {
@@ -85,13 +85,13 @@ const ApiHookTest = () => {
           <div>
             <h3 className='font-bold mb-2'>결제 내역 목록</h3>
             <pre className='bg-gray-50 p-4 rounded-lg'>
-              {JSON.stringify(historyList, null, 2)}
+              {JSON.stringify(transactionList, null, 2)}
             </pre>
           </div>
           <div>
             <h3 className='font-bold mb-2'>결제 상세 내역</h3>
             <pre className='bg-gray-50 p-4 rounded-lg'>
-              {JSON.stringify(historyDetail, null, 2)}
+              {JSON.stringify(transactionDetail, null, 2)}
             </pre>
           </div>
         </div>
