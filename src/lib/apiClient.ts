@@ -2,9 +2,12 @@ import ky, { HTTPError, type Options } from 'ky';
 import { API_BASE_URL } from '../config';
 
 type ApiResponse<T> = {
-  code: number;
-  data: T;
-  message?: string;
+  ok: boolean;
+  data: T | null;
+  error?: {
+    code: string;
+    message: string;
+  };
 };
 
 /**
@@ -19,18 +22,6 @@ const httpClient = ky.create({
   credentials: 'include',
   hooks: {
     /**
-     * 요청 전 헤더에 인증 토큰을 추가합니다.
-     * @param {Request} request - 요청 객체
-     */
-    beforeRequest: [
-      (request) => {
-        const token = localStorage.getItem('accessToken');
-        if (token) {
-          request.headers.set('Authorization', `Bearer ${token}`);
-        }
-      },
-    ],
-    /**
      * 응답 후 처리 로직을 정의합니다.
      * 예: 401 상태 코드가 반환되면 로그인 페이지로 리다이렉트 처리
      * @param {Request} _request - 요청 객체
@@ -38,14 +29,61 @@ const httpClient = ky.create({
      * @param {Response} response - 응답 객체
      */
     afterResponse: [
-      async (_request, _options, response) => {
+      async (request, options, response) => {
         if (response.status === 401) {
-          console.warn('Unauthorized - redirecting to login...');
+          console.warn('Unauthorized - attempting to refresh session...');
+          await refreshSession();
+          return ky(request, options); // 세션 갱신 후 원래 요청 다시 시도
         }
       },
     ],
   },
 });
+
+const refreshSession = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+      method: 'POST',
+      credentials: 'include', // ✅ 쿠키 자동 포함
+    });
+
+    if (!response.ok) {
+      console.error('Session refresh failed');
+      return false;
+    }
+
+    console.log('Session refreshed successfully');
+    return true;
+  } catch (error) {
+    console.error('Error refreshing session:', error);
+    return false;
+  }
+};
+
+const refreshAccessToken = async (): Promise<string | null> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+      method: 'POST',
+      credentials: 'include', // 쿠키 포함
+    });
+
+    if (!response.ok) {
+      console.error('Failed to refresh access token');
+      return null;
+    }
+
+    const data = await response.json();
+    if (data.accessToken) {
+      localStorage.setItem('accessToken', data.accessToken);
+      return data.accessToken;
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Error refreshing access token:', error);
+    return null;
+  }
+};
 
 /**
  * API Wrapper
@@ -54,83 +92,51 @@ const httpClient = ky.create({
 export const api = {
   /**
    * GET 요청
-   * @template T - 응답 데이터 타입
-   * @param {string} url - API 엔드포인트
-   * @param {Options} [options] - 요청 옵션
-   * @returns {Promise<ApiResponse<T>>} - 응답 데이터의 Promise
    */
   get: async <T>(url: string, options?: Options): Promise<ApiResponse<T>> => {
     try {
       return await httpClient.get(url, options).json<ApiResponse<T>>();
     } catch (error) {
-      return handleError(error);
+      return await handleError<T>(error);
     }
   },
 
   /**
    * POST 요청
-   * @template T - 응답 데이터 타입
-   * @template R - 요청 바디 타입
-   * @param {string} url - API 엔드포인트
-   * @param {R} body - 요청 바디
-   * @param {Options} [options] - 요청 옵션
-   * @returns {Promise<ApiResponse<T>>} - 응답 데이터의 Promise
    */
   post: async <T, R>(
     url: string,
     body: R,
     options?: Options,
-  ): Promise<ApiResponse<T | null>> => {
+  ): Promise<ApiResponse<T>> => {
     try {
-      const response = await httpClient.post(url, { json: body, ...options });
-      const json = await response.json<ApiResponse<T>>();
-      return response.body
-        ? json
-        : {
-            code: response.status,
-            data: null,
-            message: response.statusText || 'No content returned',
-          };
+      return await httpClient
+        .post(url, { json: body, ...options })
+        .json<ApiResponse<T>>();
     } catch (error) {
-      return handleError(error);
+      return await handleError<T>(error);
     }
   },
 
   /**
    * PUT 요청
-   * @template T - 응답 데이터 타입
-   * @template R - 요청 바디 타입
-   * @param {string} url - API 엔드포인트
-   * @param {R} body - 요청 바디
-   * @param {Options} [options] - 요청 옵션
-   * @returns {Promise<ApiResponse<T>>} - 응답 데이터의 Promise
    */
   put: async <T, R>(
     url: string,
     body: R,
     options?: Options,
-  ): Promise<ApiResponse<T | null>> => {
+  ): Promise<ApiResponse<T>> => {
     try {
-      const response = await httpClient.put(url, { json: body, ...options });
-      const json = await response.json<ApiResponse<T>>();
-      return response.body
-        ? json
-        : {
-            code: response.status,
-            data: null,
-            message: response.statusText || 'No content returned',
-          };
+      return await httpClient
+        .put(url, { json: body, ...options })
+        .json<ApiResponse<T>>();
     } catch (error) {
-      return handleError(error);
+      return await handleError<T>(error);
     }
   },
 
   /**
    * DELETE 요청
-   * @template T - 응답 데이터 타입
-   * @param {string} url - API 엔드포인트
-   * @param {Options} [options] - 요청 옵션
-   * @returns {Promise<ApiResponse<T>>} - 응답 데이터의 Promise
    */
   delete: async <T>(
     url: string,
@@ -139,7 +145,7 @@ export const api = {
     try {
       return await httpClient.delete(url, options).json<ApiResponse<T>>();
     } catch (error) {
-      return handleError(error);
+      return await handleError<T>(error);
     }
   },
 };
@@ -148,11 +154,40 @@ export const api = {
  * 에러 처리 함수
  * @param {unknown} error - 처리할 에러 객체
  */
-const handleError = (error: unknown): never => {
+const handleError = async <T>(error: unknown): Promise<ApiResponse<T>> => {
   if (error instanceof HTTPError) {
-    console.error(`HTTP Error: ${error.response.status}`, error);
-  } else {
-    console.error('Unexpected Error:', error);
+    if (error.response.status === 401) {
+      console.warn('Unauthorized - attempting to refresh token...');
+      const newAccessToken = await refreshAccessToken();
+      if (newAccessToken) {
+        return await ky(error.request).json<ApiResponse<T>>(); // 원래 요청 다시 시도
+      }
+    }
+
+    try {
+      const json = (await error.response.json()) as ApiResponse<T>;
+      return json;
+    } catch (jsonError) {
+      console.error('JSON parse error:', jsonError);
+    }
+
+    return {
+      ok: false,
+      data: null,
+      error: {
+        code: error.response.status.toString(),
+        message: error.response.statusText || 'Unknown error',
+      },
+    };
   }
-  throw error; // 에러를 다시 던져서 상위 호출자가 처리할 수 있게 함
+
+  console.error('Unexpected Error:', error);
+  return {
+    ok: false,
+    data: null,
+    error: {
+      code: 'UNKNOWN',
+      message: 'Unexpected error occurred',
+    },
+  };
 };
