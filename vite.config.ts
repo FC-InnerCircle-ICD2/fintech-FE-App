@@ -25,4 +25,14 @@ export default defineConfig({
       process.env.NODE_ENV || 'development',
     ),
   },
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://payment.pay-200.com',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/api/, ''), // 🔄 '/api' 제거 후 원래 API 호출
+      },
+    },
+  },
 });
