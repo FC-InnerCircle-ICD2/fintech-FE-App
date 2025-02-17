@@ -9,6 +9,7 @@ import ModalUITest from '@pages/test/ModalUITest';
 import ApiHookTest from '@pages/test/ApiHookTest';
 import ButtonSample from '@pages/test/ButtonSample';
 import SSETest from '@pages/test/SSETest';
+import { ProtectedRoute } from '@ui/layouts/ProtectedRoute';
 
 // Lazy load pages
 const LoginPage = lazy(() =>
@@ -65,64 +66,76 @@ const SuspendedCardPage = withSuspense(CardPage);
 const SUspendedQRDeepLinkSUccess = withSuspense(QRDeepLinkSuccessPage);
 
 // 라우트 설정
-const routes = {
-  path: '/',
-  children: [
-    // 네비게이션 없는 페이지들
-    {
-      element: <DefaultLayout />,
-      children: [
-        { index: true, element: <SplashPage /> },
-        { path: ROUTES.LOGIN, element: <SuspendedLoginPage /> },
-        { path: ROUTES.SIGNUP, element: <SuspendedSignupPage /> },
-        {
-          path: ROUTES.PAYMENT.DETAIL,
-          element: <SuspendedQRPaymentDetailPage />,
-        },
-        {
-          path: ROUTES.PAYMENT.COMPLETE,
-          element: <SuspendedQRPaymentCompletePage />,
-        },
-        {
-          path: ROUTES.PAYMENT.DEEPLINK,
-          element: <SUspendedQRDeepLinkSUccess />,
-        },
-        {
-          path: ROUTES.TRANSACTIONS.DETAIL,
-          element: <SuspendedTransactionDetailPage />,
-        },
-      ],
-    },
+const routes = [
+  {
+    path: '/',
+    children: [
+      {
+        // 로그인 필요한 페이지
+        element: <ProtectedRoute />,
+        children: [
+          {
+            element: <DefaultLayout />,
+            children: [
+              {
+                path: ROUTES.PAYMENT.DETAIL,
+                element: <SuspendedQRPaymentDetailPage />,
+              },
+              {
+                path: ROUTES.PAYMENT.COMPLETE,
+                element: <SuspendedQRPaymentCompletePage />,
+              },
+              {
+                path: ROUTES.PAYMENT.DEEPLINK,
+                element: <SUspendedQRDeepLinkSUccess />,
+              },
+              {
+                path: ROUTES.TRANSACTIONS.DETAIL,
+                element: <SuspendedTransactionDetailPage />,
+              },
+            ],
+          },
+          {
+            element: <BottomNavLayout />,
+            children: [
+              { path: ROUTES.PAYMENT.QR, element: <SuspendedQRPage /> },
+              {
+                path: ROUTES.TRANSACTIONS.LIST,
+                element: <SuspendedTransactionsPage />,
+              },
+              { path: ROUTES.CARD.LIST, element: <SuspendedCardPage /> },
+            ],
+          },
+        ],
+      },
+      // 네비게이션 없는 페이지들 - 로그인 필요없는 페이지
+      {
+        element: <DefaultLayout />,
+        children: [
+          { index: true, element: <SplashPage /> },
+          { path: ROUTES.LOGIN, element: <SuspendedLoginPage /> },
+          { path: ROUTES.SIGNUP, element: <SuspendedSignupPage /> },
+        ],
+      },
 
-    // 네비게이션 있는 페이지들
-    {
-      element: <BottomNavLayout />,
-      children: [
-        { path: ROUTES.PAYMENT.QR, element: <SuspendedQRPage /> },
-        {
-          path: ROUTES.TRANSACTIONS.LIST,
-          element: <SuspendedTransactionsPage />,
-        },
-        { path: ROUTES.CARD.LIST, element: <SuspendedCardPage /> },
-      ],
-    },
-    {
-      path: '/modal-test',
-      element: <ModalUITest />,
-    },
-    {
-      path: '/button-test',
-      element: <ButtonSample />,
-    },
-    {
-      path: '/api-hook-test',
-      element: <ApiHookTest />,
-    },
-    {
-      path: '/sse-hook-test',
-      element: <SSETest />,
-    },
-  ],
-};
+      {
+        path: '/modal-test',
+        element: <ModalUITest />,
+      },
+      {
+        path: '/button-test',
+        element: <ButtonSample />,
+      },
+      {
+        path: '/api-hook-test',
+        element: <ApiHookTest />,
+      },
+      {
+        path: '/sse-hook-test',
+        element: <SSETest />,
+      },
+    ],
+  },
+];
 
-export const router = createBrowserRouter([routes]);
+export const router = createBrowserRouter(routes);
