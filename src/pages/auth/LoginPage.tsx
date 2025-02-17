@@ -1,41 +1,23 @@
-import { authService } from '@api/services/auth';
-import { ROUTES } from '@constants/routes';
-import useModal from '@hooks/useModal';
-import { useMutation } from '@tanstack/react-query';
+import { useAuth } from '@hooks/useAuth';
 import type { LoginReq } from '@type/requests/auth';
 import Button from '@ui/components/button/Button';
 import PageLayout from '@ui/layouts/PageLayout';
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 export const LoginPage = () => {
-  const { openDialog } = useModal();
+  const { login } = useAuth();
+
   const [isShow, setIsShow] = useState<boolean>(false);
   const [loginData, setLoginData] = useState<LoginReq>({
-    email: 'admin@admin.com',
-    password: '1234',
+    email: 'test@test.com',
+    password: 'password123',
   });
-  const navigate = useNavigate();
 
   const onChangeValue = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setLoginData((prev) => ({ ...prev, [name]: value }));
   };
-  const { isPending } = useMutation({
-    mutationKey: ['login'],
-    mutationFn: () => authService.login(loginData),
-    onSuccess: () => navigate(`${ROUTES.PAYMENT.QR}`),
-    onError: async (e) => {
-      openDialog('alert', {
-        title: '로그인 실패',
-        description: (
-          <div>
-            <p>{e.message}</p>
-          </div>
-        ),
-      });
-    },
-  });
 
   return (
     <PageLayout className='flex flex-col items-center justify-center'>
@@ -87,10 +69,11 @@ export const LoginPage = () => {
           disabled={
             loginData.email.length === 0 || loginData.password.length === 0
           }
-          isPending={isPending}
+          isPending={login.isPending}
           rounded
           onClick={() => {
-            navigate(`${ROUTES.PAYMENT.QR}`);
+            // navigate(`${ROUTES.PAYMENT.QR}`);
+            login.mutate(loginData);
           }}
         >
           로그인
