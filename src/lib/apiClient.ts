@@ -1,14 +1,20 @@
 import ky, { HTTPError, type Options } from 'ky';
 import { API_BASE_URL } from '../config';
 
-type ApiResponse<T> = {
-  ok: boolean;
-  data: T | null;
-  error?: {
+type ApiResponseSuccess<T> = {
+  ok: true;
+  data: T;
+};
+
+type ApiResponseError = {
+  ok: false;
+  error: {
     code: string;
     message: string;
   };
 };
+
+type ApiResponse<T> = ApiResponseSuccess<T> | ApiResponseError;
 
 /**
  * API 클라이언트 생성
@@ -24,9 +30,6 @@ const httpClient = ky.create({
     /**
      * 응답 후 처리 로직을 정의합니다.
      * 예: 401 상태 코드가 반환되면 로그인 페이지로 리다이렉트 처리
-     * @param {Request} _request - 요청 객체
-     * @param {Options} _options - 요청 옵션
-     * @param {Response} response - 응답 객체
      */
     afterResponse: [
       async (request, options, response) => {
@@ -64,7 +67,7 @@ const refreshAccessToken = async (): Promise<string | null> => {
   try {
     const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
       method: 'POST',
-      credentials: 'include', // 쿠키 포함
+      credentials: 'include',
     });
 
     if (!response.ok) {
@@ -87,7 +90,6 @@ const refreshAccessToken = async (): Promise<string | null> => {
 
 /**
  * API Wrapper
- * 각 메서드는 동적으로 httpClient를 호출합니다.
  */
 export const api = {
   /**
@@ -95,7 +97,8 @@ export const api = {
    */
   get: async <T>(url: string, options?: Options): Promise<ApiResponse<T>> => {
     try {
-      return await httpClient.get(url, options).json<ApiResponse<T>>();
+      const data = await httpClient.get(url, options).json<T>();
+      return { ok: true, data };
     } catch (error) {
       return await handleError<T>(error);
     }
@@ -110,9 +113,10 @@ export const api = {
     options?: Options,
   ): Promise<ApiResponse<T>> => {
     try {
-      return await httpClient
+      const data = await httpClient
         .post(url, { json: body, ...options })
-        .json<ApiResponse<T>>();
+        .json<T>();
+      return { ok: true, data };
     } catch (error) {
       return await handleError<T>(error);
     }
@@ -127,9 +131,10 @@ export const api = {
     options?: Options,
   ): Promise<ApiResponse<T>> => {
     try {
-      return await httpClient
+      const data = await httpClient
         .put(url, { json: body, ...options })
-        .json<ApiResponse<T>>();
+        .json<T>();
+      return { ok: true, data };
     } catch (error) {
       return await handleError<T>(error);
     }
@@ -143,7 +148,8 @@ export const api = {
     options?: Options,
   ): Promise<ApiResponse<T>> => {
     try {
-      return await httpClient.delete(url, options).json<ApiResponse<T>>();
+      const data = await httpClient.delete(url, options).json<T>();
+      return { ok: true, data };
     } catch (error) {
       return await handleError<T>(error);
     }
@@ -152,7 +158,6 @@ export const api = {
 
 /**
  * 에러 처리 함수
- * @param {unknown} error - 처리할 에러 객체
  */
 const handleError = async <T>(error: unknown): Promise<ApiResponse<T>> => {
   if (error instanceof HTTPError) {
@@ -165,15 +170,21 @@ const handleError = async <T>(error: unknown): Promise<ApiResponse<T>> => {
     }
 
     try {
-      const json = (await error.response.json()) as ApiResponse<T>;
-      return json;
+      const json = await error.response.json();
+      return {
+        ok: false,
+        error: {
+          code: error.response.status.toString(),
+          message:
+            json?.message || error.response.statusText || 'Unknown error',
+        },
+      };
     } catch (jsonError) {
       console.error('JSON parse error:', jsonError);
     }
 
     return {
       ok: false,
-      data: null,
       error: {
         code: error.response.status.toString(),
         message: error.response.statusText || 'Unknown error',
@@ -184,7 +195,6 @@ const handleError = async <T>(error: unknown): Promise<ApiResponse<T>> => {
   console.error('Unexpected Error:', error);
   return {
     ok: false,
-    data: null,
     error: {
       code: 'UNKNOWN',
       message: 'Unexpected error occurred',
