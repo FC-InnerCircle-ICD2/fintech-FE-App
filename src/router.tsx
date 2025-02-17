@@ -53,6 +53,10 @@ const QRDeepLinkSuccessPage = lazy(() =>
   })),
 );
 
+const AddCardPage = lazy(() =>
+  import('@pages/card/list/AddCardPage').then((m) => ({ default: m.default })),
+);
+
 const SuspendedLoginPage = withSuspense(LoginPage);
 const SuspendedSignupPage = withSuspense(SignupPage);
 
@@ -63,7 +67,65 @@ const SuspendedQRPaymentCompletePage = withSuspense(QRPaymentCompletePage);
 const SuspendedTransactionsPage = withSuspense(TransactionsPage);
 const SuspendedTransactionDetailPage = withSuspense(TransactionDetailPage);
 const SuspendedCardPage = withSuspense(CardPage);
-const SUspendedQRDeepLinkSUccess = withSuspense(QRDeepLinkSuccessPage);
+const SuspendedQRDeepLinkSuccess = withSuspense(QRDeepLinkSuccessPage);
+const SuspendedAddCardPage = withSuspense(AddCardPage);
+
+const AUTH_REQUIRED_ROUTES = [
+  {
+    element: <DefaultLayout />,
+    children: [
+      {
+        path: ROUTES.PAYMENT.DETAIL,
+        element: <SuspendedQRPaymentDetailPage />,
+      },
+      {
+        path: ROUTES.PAYMENT.COMPLETE,
+        element: <SuspendedQRPaymentCompletePage />,
+      },
+      {
+        path: ROUTES.PAYMENT.DEEPLINK,
+        element: <SuspendedQRDeepLinkSuccess />,
+      },
+      {
+        path: ROUTES.TRANSACTIONS.DETAIL,
+        element: <SuspendedTransactionDetailPage />,
+      },
+      {
+        path: ROUTES.CARD.ADD,
+        element: <SuspendedAddCardPage />,
+      },
+    ],
+  },
+  {
+    element: <BottomNavLayout />,
+    children: [
+      { path: ROUTES.PAYMENT.QR, element: <SuspendedQRPage /> },
+      {
+        path: ROUTES.TRANSACTIONS.LIST,
+        element: <SuspendedTransactionsPage />,
+      },
+      { path: ROUTES.CARD.LIST, element: <SuspendedCardPage /> },
+    ],
+  },
+];
+
+const PUBLIC_ROUTES = [
+  {
+    element: <DefaultLayout />,
+    children: [
+      { index: true, element: <SplashPage /> },
+      { path: ROUTES.LOGIN, element: <SuspendedLoginPage /> },
+      { path: ROUTES.SIGNUP, element: <SuspendedSignupPage /> },
+    ],
+  },
+];
+
+const TEST_ROUTES = [
+  { path: '/modal-test', element: <ModalUITest /> },
+  { path: '/button-test', element: <ButtonSample /> },
+  { path: '/api-hook-test', element: <ApiHookTest /> },
+  { path: '/sse-hook-test', element: <SSETest /> },
+];
 
 // 라우트 설정
 const routes = [
@@ -71,69 +133,11 @@ const routes = [
     path: '/',
     children: [
       {
-        // 로그인 필요한 페이지
         element: <ProtectedRoute />,
-        children: [
-          {
-            element: <DefaultLayout />,
-            children: [
-              {
-                path: ROUTES.PAYMENT.DETAIL,
-                element: <SuspendedQRPaymentDetailPage />,
-              },
-              {
-                path: ROUTES.PAYMENT.COMPLETE,
-                element: <SuspendedQRPaymentCompletePage />,
-              },
-              {
-                path: ROUTES.PAYMENT.DEEPLINK,
-                element: <SUspendedQRDeepLinkSUccess />,
-              },
-              {
-                path: ROUTES.TRANSACTIONS.DETAIL,
-                element: <SuspendedTransactionDetailPage />,
-              },
-            ],
-          },
-          {
-            element: <BottomNavLayout />,
-            children: [
-              { path: ROUTES.PAYMENT.QR, element: <SuspendedQRPage /> },
-              {
-                path: ROUTES.TRANSACTIONS.LIST,
-                element: <SuspendedTransactionsPage />,
-              },
-              { path: ROUTES.CARD.LIST, element: <SuspendedCardPage /> },
-            ],
-          },
-        ],
+        children: AUTH_REQUIRED_ROUTES,
       },
-      // 네비게이션 없는 페이지들 - 로그인 필요없는 페이지
-      {
-        element: <DefaultLayout />,
-        children: [
-          { index: true, element: <SplashPage /> },
-          { path: ROUTES.LOGIN, element: <SuspendedLoginPage /> },
-          { path: ROUTES.SIGNUP, element: <SuspendedSignupPage /> },
-        ],
-      },
-
-      {
-        path: '/modal-test',
-        element: <ModalUITest />,
-      },
-      {
-        path: '/button-test',
-        element: <ButtonSample />,
-      },
-      {
-        path: '/api-hook-test',
-        element: <ApiHookTest />,
-      },
-      {
-        path: '/sse-hook-test',
-        element: <SSETest />,
-      },
+      ...PUBLIC_ROUTES,
+      ...TEST_ROUTES,
     ],
   },
 ];
