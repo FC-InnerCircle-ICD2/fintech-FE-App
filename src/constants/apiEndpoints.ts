@@ -22,6 +22,13 @@ export const API_ENDPOINTS = {
         `api/v1/managements/histories/${historyId}`, // 결제 내역 상세 조회
     },
   },
+  CARD: {
+    REGISTER: 'api/v1/p/user/cards', // 카드 등록
+    LIST: 'api/v1/p/user/cards', // 카드 목록 조회
+    SET_REPRESENTATIVE: (cardId: string) =>
+      `api/v1/p/user/cards/${cardId}/representative`, // 주 카드 설정
+    DELETE: (cardId: string) => `api/v1/p/user/cards/${cardId}`, // 카드 삭제
+  },
 } as const;
 
 export const QUERY_KEY = {
