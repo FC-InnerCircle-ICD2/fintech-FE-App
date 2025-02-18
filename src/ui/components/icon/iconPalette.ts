@@ -6,6 +6,7 @@ import {
   Loader,
   CircleCheck,
   CircleX,
+  PlusCircle,
 } from 'lucide-react';
 
 export const ICON_PALLETTE = {
@@ -16,4 +17,5 @@ export const ICON_PALLETTE = {
   Loader,
   CircleCheck,
   CircleX,
+  PlusCircle,
 };
