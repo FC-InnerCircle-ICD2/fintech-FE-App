@@ -12,7 +12,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   login: (accessToken: string) => {
     localStorage.setItem(ACCESS_TOKEN, accessToken);
-    set({ isAuthenticated: true }); // ✅ 상태 업데이트
+    set({ isAuthenticated: true });
   },
 
   logout: () => {
