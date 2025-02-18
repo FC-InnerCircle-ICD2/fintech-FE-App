@@ -2,13 +2,14 @@ import { createBrowserRouter } from 'react-router-dom';
 import { lazy } from 'react';
 import { DefaultLayout } from './ui/layouts/defaultLayout';
 import { BottomNavLayout } from './ui/layouts/bottomNavLayout';
-import { withSuspense } from './providers/withSuspense';
+import { withSuspense } from '@ui/components/withSuspense/WithSuspense';
 import { ROUTES } from '@constants/routes';
 import SplashPage from '@pages/splash/Splash';
 import ModalUITest from '@pages/test/ModalUITest';
 import ApiHookTest from '@pages/test/ApiHookTest';
 import ButtonSample from '@pages/test/ButtonSample';
 import SSETest from '@pages/test/SSETest';
+import { ProtectedRoute } from '@ui/layouts/ProtectedRoute';
 
 // Lazy load pages
 const LoginPage = lazy(() =>
@@ -66,72 +67,79 @@ const SuspendedQRPaymentCompletePage = withSuspense(QRPaymentCompletePage);
 const SuspendedTransactionsPage = withSuspense(TransactionsPage);
 const SuspendedTransactionDetailPage = withSuspense(TransactionDetailPage);
 const SuspendedCardPage = withSuspense(CardPage);
-const SUspendedQRDeepLinkSUccess = withSuspense(QRDeepLinkSuccessPage);
+const SuspendedQRDeepLinkSuccess = withSuspense(QRDeepLinkSuccessPage);
 const SuspendedAddCardPage = withSuspense(AddCardPage);
 
+const AUTH_REQUIRED_ROUTES = [
+  {
+    element: <DefaultLayout />,
+    children: [
+      {
+        path: ROUTES.PAYMENT.DETAIL,
+        element: <SuspendedQRPaymentDetailPage />,
+      },
+      {
+        path: ROUTES.PAYMENT.COMPLETE,
+        element: <SuspendedQRPaymentCompletePage />,
+      },
+      {
+        path: ROUTES.PAYMENT.DEEPLINK,
+        element: <SuspendedQRDeepLinkSuccess />,
+      },
+      {
+        path: ROUTES.TRANSACTIONS.DETAIL,
+        element: <SuspendedTransactionDetailPage />,
+      },
+      {
+        path: ROUTES.CARD.ADD,
+        element: <SuspendedAddCardPage />,
+      },
+    ],
+  },
+  {
+    element: <BottomNavLayout />,
+    children: [
+      { path: ROUTES.PAYMENT.QR, element: <SuspendedQRPage /> },
+      {
+        path: ROUTES.TRANSACTIONS.LIST,
+        element: <SuspendedTransactionsPage />,
+      },
+      { path: ROUTES.CARD.LIST, element: <SuspendedCardPage /> },
+    ],
+  },
+];
+
+const PUBLIC_ROUTES = [
+  {
+    element: <DefaultLayout />,
+    children: [
+      { index: true, element: <SplashPage /> },
+      { path: ROUTES.LOGIN, element: <SuspendedLoginPage /> },
+      { path: ROUTES.SIGNUP, element: <SuspendedSignupPage /> },
+    ],
+  },
+];
+
+const TEST_ROUTES = [
+  { path: '/modal-test', element: <ModalUITest /> },
+  { path: '/button-test', element: <ButtonSample /> },
+  { path: '/api-hook-test', element: <ApiHookTest /> },
+  { path: '/sse-hook-test', element: <SSETest /> },
+];
+
 // 라우트 설정
-const routes = {
-  path: '/',
-  children: [
-    // 네비게이션 없는 페이지들
-    {
-      element: <DefaultLayout />,
-      children: [
-        { index: true, element: <SplashPage /> },
-        { path: ROUTES.LOGIN, element: <SuspendedLoginPage /> },
-        { path: ROUTES.SIGNUP, element: <SuspendedSignupPage /> },
-        {
-          path: ROUTES.PAYMENT.DETAIL,
-          element: <SuspendedQRPaymentDetailPage />,
-        },
-        {
-          path: ROUTES.PAYMENT.COMPLETE,
-          element: <SuspendedQRPaymentCompletePage />,
-        },
-        {
-          path: ROUTES.PAYMENT.DEEPLINK,
-          element: <SUspendedQRDeepLinkSUccess />,
-        },
-        {
-          path: ROUTES.TRANSACTIONS.DETAIL,
-          element: <SuspendedTransactionDetailPage />,
-        },
-        {
-          path: ROUTES.CARD.ADD,
-          element: <SuspendedAddCardPage />,
-        },
-      ],
-    },
+const routes = [
+  {
+    path: '/',
+    children: [
+      {
+        element: <ProtectedRoute />,
+        children: AUTH_REQUIRED_ROUTES,
+      },
+      ...PUBLIC_ROUTES,
+      ...TEST_ROUTES,
+    ],
+  },
+];
 
-    // 네비게이션 있는 페이지들
-    {
-      element: <BottomNavLayout />,
-      children: [
-        { path: ROUTES.PAYMENT.QR, element: <SuspendedQRPage /> },
-        {
-          path: ROUTES.TRANSACTIONS.LIST,
-          element: <SuspendedTransactionsPage />,
-        },
-        { path: ROUTES.CARD.LIST, element: <SuspendedCardPage /> },
-      ],
-    },
-    {
-      path: '/modal-test',
-      element: <ModalUITest />,
-    },
-    {
-      path: '/button-test',
-      element: <ButtonSample />,
-    },
-    {
-      path: '/api-hook-test',
-      element: <ApiHookTest />,
-    },
-    {
-      path: '/sse-hook-test',
-      element: <SSETest />,
-    },
-  ],
-};
-
-export const router = createBrowserRouter([routes]);
+export const router = createBrowserRouter(routes);

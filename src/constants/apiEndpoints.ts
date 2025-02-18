@@ -1,6 +1,6 @@
 export const API_ENDPOINTS = {
   USERS: {
-    LOGIN: 'api/v1/users/login', // 로그인
+    LOGIN: 'api/v1/p/user/sign-in', // 로그인
     REGISTER: 'api/v1/users', // 회원가입
     LOGOUT: 'api/v1/users/logout', // 로그아웃
     REFRESH: 'api/v1/users/refresh', // 토큰 재발급 ( 논의 필요 )
@@ -32,6 +32,9 @@ export const API_ENDPOINTS = {
 } as const;
 
 export const QUERY_KEY = {
+  USER: {
+    LOGIN: 'login',
+  },
   PAYMENT: {
     ORDER_INFO: 'payment/order-info',
   },
