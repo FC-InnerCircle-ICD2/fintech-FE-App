@@ -4,21 +4,23 @@ import { authService } from '@api/services/auth';
 import { ROUTES } from '@constants/routes';
 import useModal from '@hooks/useModal';
 import { useAuthStore } from '@stores/auth';
+import { QUERY_KEY } from '@constants/apiEndpoints';
+import type { LoginReq } from '@type/requests/auth';
 
 export const useAuth = () => {
   const navigate = useNavigate();
   const { openDialog } = useModal();
-  const loginSuccess = useAuthStore((state) => state.login); // ✅ 수정된 부분
+  const loginSuccess = useAuthStore((state) => state.login);
 
   const login = useMutation({
-    mutationKey: ['login'],
-    mutationFn: async (loginData: { email: string; password: string }) => {
+    mutationKey: [QUERY_KEY.USER.LOGIN],
+    mutationFn: async (loginData: LoginReq) => {
       return authService.login(loginData);
     },
     onSuccess: (res) => {
       if (res.ok) {
         const accessToken = res.data.accessToken;
-        loginSuccess(accessToken); // ✅ 수정: Zustand 상태 업데이트
+        loginSuccess(accessToken);
         navigate(ROUTES.PAYMENT.QR);
       }
     },
@@ -34,7 +36,7 @@ export const useAuth = () => {
     },
   });
 
-  const logout = useAuthStore((state) => state.logout); // ✅ Zustand에서 바로 가져오기
+  const logout = useAuthStore((state) => state.logout);
 
   return { login, logout };
 };
