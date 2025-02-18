@@ -2,7 +2,7 @@ import { createBrowserRouter } from 'react-router-dom';
 import { lazy } from 'react';
 import { DefaultLayout } from './ui/layouts/defaultLayout';
 import { BottomNavLayout } from './ui/layouts/bottomNavLayout';
-import { withSuspense } from './providers/withSuspense';
+import { withSuspense } from '@ui/components/withSuspense/WithSuspense';
 import { ROUTES } from '@constants/routes';
 import SplashPage from '@pages/splash/Splash';
 import ModalUITest from '@pages/test/ModalUITest';
