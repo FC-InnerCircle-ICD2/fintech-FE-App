@@ -32,6 +32,9 @@ export const API_ENDPOINTS = {
 } as const;
 
 export const QUERY_KEY = {
+  USER: {
+    LOGIN: 'login',
+  },
   PAYMENT: {
     ORDER_INFO: 'payment/order-info',
   },
