@@ -72,7 +72,6 @@ export const LoginPage = () => {
           isPending={login.isPending}
           rounded
           onClick={() => {
-            // navigate(`${ROUTES.PAYMENT.QR}`);
             login.mutate(loginData);
           }}
         >
