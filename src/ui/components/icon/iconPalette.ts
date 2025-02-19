@@ -7,6 +7,7 @@ import {
   CircleCheck,
   CircleX,
   PlusCircle,
+  ArrowLeft,
 } from 'lucide-react';
 
 export const ICON_PALLETTE = {
@@ -18,4 +19,5 @@ export const ICON_PALLETTE = {
   CircleCheck,
   CircleX,
   PlusCircle,
+  ArrowLeft,
 };
