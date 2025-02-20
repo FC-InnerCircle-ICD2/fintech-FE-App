@@ -13,7 +13,7 @@ export const useAuth = () => {
   const loginSuccess = useAuthStore((state) => state.login);
 
   const login = useMutation({
-    mutationKey: [QUERY_KEY.USER.LOGIN],
+    mutationKey: [QUERY_KEY.USER.SIGN_IN],
     mutationFn: async (loginData: LoginReq) => {
       return authService.login(loginData);
     },
