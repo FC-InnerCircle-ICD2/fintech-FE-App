@@ -1,5 +1,6 @@
 import ky, { HTTPError, type Options } from 'ky';
 import { API_BASE_URL } from '../config';
+import { ACCESS_TOKEN } from '@constants/token';
 
 /**
  * ✅ API 성공 응답 타입
@@ -37,6 +38,14 @@ const httpClient = ky.create({
           console.warn('Unauthorized - attempting to refresh session...');
           await refreshSession();
           return httpClient(request, options);
+        }
+      },
+    ],
+    beforeRequest: [
+      (request) => {
+        const token = localStorage.getItem(ACCESS_TOKEN);
+        if (token) {
+          request.headers.set('Authorization', `Bearer ${token}`); // 헤더에 Bearer 토큰 추가
         }
       },
     ],
@@ -87,6 +96,13 @@ export const api = {
   put: <T, R>(url: string, body: R, options?: Options) =>
     httpClient
       .put(url, { json: body, ...options })
+      .json<ApiResponse<T>>() // ✅ 여기서 ApiResponse<T>로 명확하게 정의
+      .then((response) => response) // ✅ response 자체를 그대로 반환
+      .catch((error) => handleError<T>(error)),
+
+  patch: <T, R>(url: string, body: R, options?: Options) =>
+    httpClient
+      .patch(url, { json: body, ...options })
       .json<ApiResponse<T>>() // ✅ 여기서 ApiResponse<T>로 명확하게 정의
       .then((response) => response) // ✅ response 자체를 그대로 반환
       .catch((error) => handleError<T>(error)),
