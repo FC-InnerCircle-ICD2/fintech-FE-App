@@ -52,18 +52,11 @@ const QRPaymentDetailPage = () => {
     isError: orderError,
   } = useParseJwt(token);
 
-  // const {
-  //   data: orderData,
-  //   isLoading: orderLoading,
-  //   isError: orderError,
-  //   refetch: orderRefetch,
-  // } = useOrderInfo(token);
-
   return (
     <PageLayout className='bg-gradient-to-br from-[#3c1488] via-[#408693] to-[#1e7f84] w-full  flex justify-center items-center'>
       <div className='bg-white w-[320px] h-[600px] rounded-[1rem] flex flex-col justify-center items-center p-8'>
         <>
-          {orderData && <QRDetailContent orderData={orderData} />}
+          {orderData && <QRDetailContent orderData={orderData} token={token} />}
           {orderLoading && <LoadingSpinner />}
           {orderError && (
             <>

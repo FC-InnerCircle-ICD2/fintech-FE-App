@@ -1,27 +1,47 @@
-import { API_ENDPOINTS } from '@constants/apiEndpoints';
-import { ROUTES } from '@constants/routes';
-import { useSSE } from '@hooks/useSSE';
-import type { OrderInfoJwtRes } from '@type/responses/payment';
-import Button from '@ui/components/button/Button';
-import LoadingAnimation from '@ui/components/loading/LoadingAnimation';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Button from '@ui/components/button/Button';
+import { paymentService } from '@api/services/payment';
+import { API_ENDPOINTS, QUERY_KEY } from '@constants/apiEndpoints';
+import { ROUTES } from '@constants/routes';
+import { useSSE } from '@hooks/useSSE';
+import { useMutation } from '@tanstack/react-query';
+import LoadingAnimation from '@ui/components/loading/LoadingAnimation';
+import type { OrderInfoJwtRes } from '@type/responses/payment';
+import type { PaymentRequestReq } from '@type/requests/payment';
 
 interface QRDetailCardProps {
-  orderData?: OrderInfoJwtRes;
+  orderData: OrderInfoJwtRes;
+  token: string;
 }
-const QRDetailContent = ({ orderData }: QRDetailCardProps) => {
+const QRDetailContent = ({ orderData, token }: QRDetailCardProps) => {
   const navigate = useNavigate();
 
   const [isPaymentLoading, setPaymentLoading] = useState(false);
   const [messages, setMessages] = useState<string>('');
+  const tokenReq: PaymentRequestReq = { token: token };
+
   const { connected, connect, disconnect } = useSSE<{
     message: string;
   }>({
-    url: API_ENDPOINTS.PAYMENT.ORDER.SSE_TEMP,
+    url: `${API_ENDPOINTS.PAYMENT.ORDER.SSE}?merchantId=${orderData.merchantId}&orderId=${orderData.orderId}`,
     onMessage: (data) => {
       console.log(data);
       setMessages(data.message);
+    },
+  });
+
+  const { mutate } = useMutation({
+    mutationKey: [QUERY_KEY.PAYMENT.REQUEST],
+    mutationFn: async () => await paymentService.requestPayment(tokenReq),
+    onSuccess: (res) => {
+      console.log('res : ', res);
+      if (res.ok) {
+        connect();
+      }
+    },
+    onError: (error) => {
+      console.log(error);
     },
   });
 
@@ -32,8 +52,10 @@ const QRDetailContent = ({ orderData }: QRDetailCardProps) => {
   }, [messages]);
 
   const handlePayment = () => {
-    connect();
+    mutate();
+    console.log('결제 요청');
     setPaymentLoading(true);
+    console.log('결제 요청 완료');
   };
 
   const handleCancel = () => {

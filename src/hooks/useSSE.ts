@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { EventSourcePolyfill } from 'event-source-polyfill';
+import { ACCESS_TOKEN } from '@constants/token';
 
 export interface UseSSEOptions<T> {
   url: string; // SSE 연결 URL
@@ -32,7 +34,18 @@ export const useSSE = <T>({
     if (eventSourceRef.current) return; // 이미 연결되어 있으면 무시
 
     const establishConnection = () => {
-      const eventSource = new EventSource(url);
+      const eventSource = new EventSourcePolyfill(
+        `${import.meta.env.VITE_API_URL}${url}`,
+        {
+          headers: {
+            Authorization: localStorage.getItem(ACCESS_TOKEN)
+              ? `Bearer ${localStorage.getItem(ACCESS_TOKEN)}`
+              : '',
+            'Custom-Header': 'Custom-Value',
+          },
+          withCredentials: true,
+        },
+      );
 
       // SSE 연결 성공
       eventSource.onopen = () => {
@@ -41,8 +54,9 @@ export const useSSE = <T>({
       };
 
       // 메시지 수신 처리
-      eventSource.onmessage = (event: MessageEvent) => {
+      (eventSource as EventSource).onmessage = (event: MessageEvent) => {
         try {
+          console.log('event.data : ', event.data);
           const data: T = JSON.parse(event.data); // 메시지 데이터 파싱
           setLastMessageTime(Date.now()); // 메시지 수신 시간 갱신
           onMessage?.(data); // 메시지 핸들러 실행
@@ -52,7 +66,7 @@ export const useSSE = <T>({
       };
 
       // SSE 연결 오류 처리
-      eventSource.onerror = (error: Event) => {
+      (eventSource as EventSource).onerror = (error: Event) => {
         console.error('SSE 연결 오류:', error);
         setConnected(false);
         onError?.(error); // 사용자 정의 에러 핸들러 실행

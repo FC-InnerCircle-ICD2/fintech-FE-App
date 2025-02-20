@@ -729,6 +729,11 @@
   resolved "https://registry.npmjs.org/@types/estree/-/estree-1.0.6.tgz"
   integrity sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw==
 
+"@types/event-source-polyfill@^1.0.5":
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/@types/event-source-polyfill/-/event-source-polyfill-1.0.5.tgz#7223387b99ff519b0fed6278961c84315ffc14b7"
+  integrity sha512-iaiDuDI2aIFft7XkcwMzDWLqo7LVDixd2sR6B4wxJut9xcp/Ev9bO4EFg4rm6S9QxATLBj5OPxdeocgmhjwKaw==
+
 "@types/hoist-non-react-statics@^3.3.1":
   version "3.3.6"
   resolved "https://registry.yarnpkg.com/@types/hoist-non-react-statics/-/hoist-non-react-statics-3.3.6.tgz#6bba74383cdab98e8db4e20ce5b4a6b98caed010"
@@ -1526,6 +1531,11 @@ esutils@^2.0.2:
   version "2.0.3"
   resolved "https://registry.npmjs.org/esutils/-/esutils-2.0.3.tgz"
   integrity sha512-kVscqXk4OCp68SZ0dkgEKVi6/8ij300KBWTJq32P/dYeWTSwK41WyTxalN1eRmA5Z9UU/LX9D7FWSmV9SAYx6g==
+
+event-source-polyfill@^1.0.31:
+  version "1.0.31"
+  resolved "https://registry.yarnpkg.com/event-source-polyfill/-/event-source-polyfill-1.0.31.tgz#45fb0a6fc1375b2ba597361ba4287ffec5bf2e0c"
+  integrity sha512-4IJSItgS/41IxN5UVAVuAyczwZF7ZIEsM1XAoUzIHA6A+xzusEZUutdXz2Nr+MQPLxfTiCvqE79/C8HT8fKFvA==
 
 eventemitter3@^5.0.1:
   version "5.0.1"

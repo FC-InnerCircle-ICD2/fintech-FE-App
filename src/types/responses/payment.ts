@@ -2,16 +2,16 @@ import type { InstallmentType, TransactionStatus } from '@type/payment';
 
 /**
  * 주문 정보 응답 타입
+ * @param paymentKey - 결제 키
  * @param orderId - 주문 ID
- * @param orderName - 주문 이름
+ * @param cardNumber - 카드 번호
  * @param amount - 주문 금액
- * @param store - 매장 이름
  */
-export type OrderInfoRes = {
+export type PaymentRequestRes = {
+  paymentKey: string;
   orderId: string;
-  orderName: string;
+  cardNumber: number;
   amount: number;
-  store: string;
 };
 
 /**
@@ -82,16 +82,18 @@ export type TransactionDetailRes = {
 
 /**
  * 주문 정보 JWT 파싱 타입
+ * @param orderId - 주문 ID
  * @param orderName - 주문 이름
  * @param amount - 주문 금액
+ * @param merchantId - 매장 ID
  * @param merchantName - 매장 이름
  * @param iat - 토큰 발급 시간
- * @param orderId - 주문 ID
  */
 export type OrderInfoJwtRes = {
   orderId: string;
   orderName: string;
   amount: number;
+  merchantId: number;
   merchantName: string;
   iat: number;
 };
