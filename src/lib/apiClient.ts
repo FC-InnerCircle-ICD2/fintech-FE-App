@@ -1,5 +1,6 @@
-import ky, { HTTPError, type Options } from 'ky';
+import ky, { type Options } from 'ky';
 import { API_BASE_URL } from '../config';
+import { useAuthStore } from '@stores/auth';
 import { ACCESS_TOKEN } from '@constants/token';
 
 /**
@@ -13,7 +14,7 @@ type ApiResponseSuccess<T> = {
 /**
  * ✅ API 실패 응답 타입
  */
-type ApiResponseError = {
+export type ApiResponseError = {
   ok: false;
   error: {
     code: string;
@@ -32,20 +33,25 @@ const httpClient = ky.create({
     'Content-Type': 'application/json',
   },
   hooks: {
+    beforeRequest: [
+      (request) => {
+        let token = useAuthStore.getState().getAccessToken();
+
+        if (!token) {
+          token = localStorage.getItem(ACCESS_TOKEN); // Zustand에 없으면 localStorage에서 가져오기
+        }
+
+        if (token) {
+          request.headers.set('Authorization', `Bearer ${token}`);
+        }
+      },
+    ],
     afterResponse: [
       async (request, options, response) => {
         if (response.status === 401) {
           console.warn('Unauthorized - attempting to refresh session...');
           await refreshSession();
           return httpClient(request, options);
-        }
-      },
-    ],
-    beforeRequest: [
-      (request) => {
-        const token = localStorage.getItem(ACCESS_TOKEN);
-        if (token) {
-          request.headers.set('Authorization', `Bearer ${token}`); // 헤더에 Bearer 토큰 추가
         }
       },
     ],
@@ -80,75 +86,11 @@ const refreshSession = async (): Promise<boolean> => {
  */
 export const api = {
   get: <T>(url: string, options?: Options) =>
-    httpClient
-      .get(url, options)
-      .json<ApiResponse<T>>() // ✅ 여기서 ApiResponse<T>로 명확하게 정의
-      .then((response) => response) // ✅ response 자체를 그대로 반환
-      .catch((error) => handleError<T>(error)),
-
+    httpClient.get(url, options).json<ApiResponse<T>>(), // ✅ 여기서 ApiResponse<T>로 명확하게 정의
   post: <T, R>(url: string, body: R, options?: Options) =>
-    httpClient
-      .post(url, { json: body, ...options })
-      .json<ApiResponse<T>>() // ✅ 여기서 ApiResponse<T>로 명확하게 정의
-      .then((response) => response) // ✅ response 자체를 그대로 반환
-      .catch((error) => handleError<T>(error)),
-
+    httpClient.post(url, { json: body, ...options }).json<ApiResponse<T>>(), // ✅ 여기서 ApiResponse<T>로 명확하게 정의
   put: <T, R>(url: string, body: R, options?: Options) =>
-    httpClient
-      .put(url, { json: body, ...options })
-      .json<ApiResponse<T>>() // ✅ 여기서 ApiResponse<T>로 명확하게 정의
-      .then((response) => response) // ✅ response 자체를 그대로 반환
-      .catch((error) => handleError<T>(error)),
-
-  patch: <T, R>(url: string, body: R, options?: Options) =>
-    httpClient
-      .patch(url, { json: body, ...options })
-      .json<ApiResponse<T>>() // ✅ 여기서 ApiResponse<T>로 명확하게 정의
-      .then((response) => response) // ✅ response 자체를 그대로 반환
-      .catch((error) => handleError<T>(error)),
-
+    httpClient.put(url, { json: body, ...options }).json<ApiResponse<T>>(), // ✅ 여기서 ApiResponse<T>로 명확하게 정의
   delete: <T>(url: string, options?: Options) =>
-    httpClient
-      .delete(url, options)
-      .json<ApiResponse<T>>() // ✅ 여기서 ApiResponse<T>로 명확하게 정의
-      .then((response) => response) // ✅ response 자체를 그대로 반환
-      .catch((error) => handleError<T>(error)),
-};
-
-/**
- * ✅ API 오류 처리 함수
- */
-const handleError = async <T>(error: unknown): Promise<ApiResponse<T>> => {
-  if (error instanceof HTTPError) {
-    try {
-      const json = (await error.response.json()) as ApiResponseError;
-      return {
-        ok: false,
-        error: {
-          code: json.error.code || error.response.status.toString(),
-          message:
-            json.error.message || error.response.statusText || 'Unknown error',
-        },
-      };
-    } catch (jsonError) {
-      console.error('JSON parse error:', jsonError);
-    }
-
-    return {
-      ok: false,
-      error: {
-        code: error.response.status.toString(),
-        message: error.response.statusText || 'Unknown error',
-      },
-    };
-  }
-
-  console.error('Unexpected Error:', error);
-  return {
-    ok: false,
-    error: {
-      code: 'UNKNOWN',
-      message: 'Unexpected error occurred',
-    },
-  };
+    httpClient.delete(url, options).json<ApiResponse<T>>(), // ✅ 여기서 ApiResponse<T>로 명확하게 정의
 };
