@@ -1,9 +1,10 @@
-import { Outlet } from 'react-router-dom';
+import { Link, Outlet } from 'react-router-dom';
 import { cn } from '@lib/shadcn/lib/utils';
 import { theme } from '@styles/theme';
 import { BottomNavigation } from '@ui/templates/navigation/bottomNav';
-import Button from '@ui/components/button/Button';
 import { useAuth } from '@hooks/useAuth';
+import Icon from '@ui/components/icon/Icon';
+import { ROUTES } from '@constants/routes';
 
 export const BottomNavLayout = () => {
   const { logout } = useAuth();
@@ -15,10 +16,12 @@ export const BottomNavLayout = () => {
           theme.safe_area_inline_padding,
         )}
       >
-        <img src='/logo.png' width={24} />
-        <Button variant={'outline_ghost'} width={'fit'} onClick={logout}>
-          logout
-        </Button>
+        <Link to={ROUTES.PAYMENT.QR}>
+          <img src='/logo.png' width={20} />
+        </Link>
+        <button type='button' onClick={logout}>
+          <Icon name='LogOut' size={20} />
+        </button>
       </header>
       <main className={cn('w-responsive_container mx-auto pb-[4rem] bg-white')}>
         <Outlet />
