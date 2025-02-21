@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { EventSourcePolyfill } from 'event-source-polyfill';
 import { ACCESS_TOKEN } from '@constants/token';
-
+/**@TODO  console.log 지우기 */
 export interface UseSSEOptions<T> {
   url: string; // SSE 연결 URL
   onMessage?: (data: T) => void; // 메시지 수신 시 실행할 콜백
@@ -31,18 +31,22 @@ export const useSSE = <T>({
 
   // SSE 연결 시작 함수
   const connect = useCallback(() => {
-    if (eventSourceRef.current) return; // 이미 연결되어 있으면 무시
+    if (eventSourceRef.current) {
+      console.log('기존 SSE 연결 종료 후 재연결');
+      eventSourceRef.current.close(); // 기존 연결 닫기
+      eventSourceRef.current = null;
+    }
 
     const establishConnection = () => {
+      const token = localStorage.getItem(ACCESS_TOKEN);
       const eventSource = new EventSourcePolyfill(
         `${import.meta.env.VITE_API_URL}${url}`,
         {
           headers: {
-            Authorization: localStorage.getItem(ACCESS_TOKEN)
-              ? `Bearer ${localStorage.getItem(ACCESS_TOKEN)}`
-              : '',
+            Authorization: token ? `Bearer ${token}` : '',
             'Custom-Header': 'Custom-Value',
           },
+
           withCredentials: true,
         },
       );
@@ -101,14 +105,25 @@ export const useSSE = <T>({
   }, []);
 
   // 데이터 수신 상태 계산
-  const isReceivingData = Date.now() - lastMessageTime < timeout;
+  const isReceivingData = useMemo(
+    () => Date.now() - lastMessageTime < timeout,
+    [lastMessageTime, timeout],
+  );
 
   // 컴포넌트 언마운트 시 연결 종료
   useEffect(() => {
-    return () => {
+    // localStorage의 ACCESS_TOKEN이 변경되면 기존 SSE 연결을 닫고 새로운 연결을 자동으로 수립
+    const handleTokenChange = () => {
+      console.log('토큰 변경 감지 → SSE 재연결');
       disconnect();
+      connect();
     };
-  }, [disconnect]);
+
+    window.addEventListener('storage', handleTokenChange); // 토큰 변경 감지
+    return () => {
+      window.removeEventListener('storage', handleTokenChange);
+    };
+  }, [connect, disconnect]);
 
   return { connected, isReceivingData, connect, disconnect };
 };
