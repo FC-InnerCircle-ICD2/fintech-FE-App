@@ -3,16 +3,20 @@ import { api } from '@lib/apiClient';
 import { API_ENDPOINTS } from '@constants/apiEndpoints';
 import type {
   TransactionDetailRes,
-  OrderInfoRes,
+  PaymentRequestRes,
   TransactionsPageRes,
 } from '@type/responses/payment';
+import type { PaymentRequestReq } from '@type/requests/payment';
 
 export const paymentService = {
   getOrderInfo: (orderToken: string) =>
-    api.get<OrderInfoRes>(API_ENDPOINTS.PAYMENT.ORDER.INFO(orderToken)),
+    api.get<PaymentRequestRes>(API_ENDPOINTS.PAYMENT.ORDER.INFO(orderToken)),
 
-  requestPayment: (orderId: string) =>
-    api.post(API_ENDPOINTS.PAYMENT.PROCESS(orderId), {}),
+  requestPayment: (token: PaymentRequestReq) =>
+    api.post<PaymentRequestRes, PaymentRequestReq>(
+      API_ENDPOINTS.PAYMENT.REQUEST,
+      token,
+    ),
 
   cancelPayment: (orderId: string) =>
     api.post(API_ENDPOINTS.PAYMENT.CANCEL(orderId), {}),

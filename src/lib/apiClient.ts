@@ -1,6 +1,7 @@
 import ky, { type Options } from 'ky';
 import { API_BASE_URL } from '../config';
 import { useAuthStore } from '@stores/auth';
+import { ACCESS_TOKEN } from '@constants/token';
 
 /**
  * ✅ API 성공 응답 타입
@@ -34,9 +35,14 @@ const httpClient = ky.create({
   hooks: {
     beforeRequest: [
       (request) => {
-        const accessToken = useAuthStore.getState().getAccessToken();
-        if (accessToken) {
-          request.headers.set('Authorization', `Bearer ${accessToken}`);
+        let token = useAuthStore.getState().getAccessToken();
+
+        if (!token) {
+          token = localStorage.getItem(ACCESS_TOKEN); // Zustand에 없으면 localStorage에서 가져오기
+        }
+
+        if (token) {
+          request.headers.set('Authorization', `Bearer ${token}`);
         }
       },
     ],
@@ -88,48 +94,3 @@ export const api = {
   delete: <T>(url: string, options?: Options) =>
     httpClient.delete(url, options).json<ApiResponse<T>>(), // ✅ 여기서 ApiResponse<T>로 명확하게 정의
 };
-
-// /**
-//  * ✅ API 오류 처리 함수
-//  */
-// const handleError = async (error: unknown): Promise<never> => {
-//   if (error instanceof HTTPError) {
-//     try {
-//       // ✅ 응답을 먼저 `text()`로 읽기
-//       const text = await error.response.text();
-
-//       // ✅ JSON 여부 검사 후 파싱 시도
-//       const json =
-//         text && isJsonString(text)
-//           ? (JSON.parse(text) as ApiResponseError)
-//           : null;
-
-//       throw new Error(
-//         json?.error?.message ||
-//           error.response.statusText ||
-//           '서버에서 알 수 없는 오류가 발생했습니다.',
-//       );
-//     } catch (jsonError) {
-//       console.error('JSON parse error 발생:', jsonError);
-//     }
-
-//     throw new Error(
-//       error.response.statusText || '서버에서 알 수 없는 오류가 발생했습니다.',
-//     );
-//   }
-
-//   console.error('Unexpected Error:', error);
-//   throw new Error('Unexpected error occurred');
-// };
-
-// /**
-//  * ✅ JSON 여부를 확인하는 함수
-//  */
-// const isJsonString = (str: string): boolean => {
-//   try {
-//     JSON.parse(str);
-//     return true;
-//   } catch (e) {
-//     return false;
-//   }
-// };

@@ -10,16 +10,16 @@ type AuthState = {
 };
 
 export const useAuthStore = create<AuthState>((set) => ({
-  isAuthenticated: !!sessionStorage.getItem(ACCESS_TOKEN),
-  accessToken: sessionStorage.getItem(ACCESS_TOKEN),
+  isAuthenticated: !!localStorage.getItem(ACCESS_TOKEN),
+  accessToken: localStorage.getItem(ACCESS_TOKEN),
 
   login: (accessToken: string) => {
-    sessionStorage.setItem(ACCESS_TOKEN, accessToken);
+    localStorage.setItem(ACCESS_TOKEN, accessToken);
     set({ isAuthenticated: true, accessToken });
   },
 
   logout: () => {
-    sessionStorage.removeItem(ACCESS_TOKEN);
+    localStorage.removeItem(ACCESS_TOKEN);
     set({ isAuthenticated: false, accessToken: null });
   },
 
