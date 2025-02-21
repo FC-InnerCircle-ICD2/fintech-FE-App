@@ -4,8 +4,8 @@ import type { TransactionStatus } from '@type/payment';
  * QR 결제 상세 조회 요청 타입
  * @param qrToken - QR 토큰
  */
-export type GetOrderInfoReq = {
-  qrToken: string;
+export type PaymentRequestReq = {
+  token: string;
 };
 
 /**
