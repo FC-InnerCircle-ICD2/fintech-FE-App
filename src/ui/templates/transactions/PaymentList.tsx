@@ -20,7 +20,13 @@ export const getStatusClass = (status: string) => {
   }
 };
 const PaymentList = () => {
-  const { data, isLoading, isError } = useTransactionList(0, 999);
+  const { data, isLoading, isError } = useTransactionList({
+    startDate: '2025-01-01',
+    endDate: '2025-12-31',
+    status: 'null',
+    page: 0,
+    limit: 999,
+  });
   const { openModal } = useModal();
   if (isLoading) {
     return <LoadingAnimation />;
@@ -40,6 +46,7 @@ const PaymentList = () => {
       ) : (
         <ul className='flex flex-col gap-4'>
           {data?.map((paymentItem) => {
+            const hasTransaction = paymentItem.transactions.length > 0; //임시
             const latestTransaction = paymentItem.transactions[0];
             return (
               <li
@@ -49,14 +56,19 @@ const PaymentList = () => {
               >
                 {/* 결제 정보 */}
                 <header className='flex justify-between gap-4 items-center pb-2'>
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusClass(latestTransaction.status)}`}
-                  >
-                    {latestTransaction.status}
-                  </span>
+                  {hasTransaction && (
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusClass(latestTransaction.status)}`}
+                    >
+                      {latestTransaction.status}
+                    </span>
+                  )}
                   <p className='text-xs text-gray-400'>
                     결제일:{' '}
-                    {new Date(latestTransaction.completedAt).toLocaleString()}{' '}
+                    {hasTransaction &&
+                      new Date(
+                        latestTransaction.completedAt,
+                      ).toLocaleString()}{' '}
                   </p>
                 </header>
                 <div className='flex flex-col gap-1 pb-4'>
@@ -65,7 +77,9 @@ const PaymentList = () => {
                   </h2>
                   <div className='flex justify-between items-center'>
                     <p className='text-2xl font-semibold'>
-                      {latestTransaction.amount.toLocaleString()}원
+                      {hasTransaction &&
+                        latestTransaction.amount.toLocaleString()}
+                      원
                     </p>
                     <p className='text-sm text-gray-500'>
                       카드 번호: **** **** ****{' '}
