@@ -38,6 +38,7 @@ const QRDetailContent = ({ orderData, token }: QRDetailCardProps) => {
       console.log('res : ', res);
       if (res.ok) {
         connect();
+
         setTimeout(() => {
           setMessages('결제가 완료되었습니다.');
         }, 2000);
