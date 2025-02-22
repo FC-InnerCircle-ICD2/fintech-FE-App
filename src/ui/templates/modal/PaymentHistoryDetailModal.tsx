@@ -26,12 +26,11 @@ const PaymentHistoryDetailModal = ({
           {data.map((trx) => (
             <li
               key={trx.id}
-              className=' p-4 border-b last:border-0 border-gray-100 flex flex-col gap-2'
+              className='py-4 border-b last:border-0 border-gray-100 flex flex-col gap-2'
             >
               <div className='flex justify-between items-center'>
-                <p className='text-sm text-gray-700'>
-                  금액:{' '}
-                  <span className='font-semibold text-blue-600'>
+                <p className='text-lg text-gray-700'>
+                  <span className='font-semibold'>
                     {trx.amount.toLocaleString()} 원
                   </span>
                 </p>

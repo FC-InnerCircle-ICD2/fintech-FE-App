@@ -89,7 +89,7 @@ const PaymentList = () => {
                 </div>
                 <div></div>
                 <Button
-                  variant={'secondary'}
+                  variant={'outline_primary'}
                   onClick={() =>
                     openModal(
                       <PaymentHistoryDetailModal
