@@ -35,17 +35,16 @@ export interface Transaction {
   status: TransactionStatus; // 가능한 상태값 명시
   reason: string;
   requestedAt: string; // ISO 날짜 형식
-  createdAt: string; // ISO 날짜 형식
-  updatedAt: string; // ISO 날짜 형식
+  completedAt: string; // ISO 날짜 형식
 }
 export type TransactionsRes = {
-  paymentType: 'CARD' | 'BANK_TRANSFER' | 'MOBILE' | 'POINT';
-  orderId: string;
-  orderName: string;
   paymentKey: string;
   cardNumber: string;
   accountId: number;
   transactions: Transaction[];
+  paymentType: 'CARD' | 'BANK_TRANSFER' | 'MOBILE' | 'POINT';
+  orderId: string;
+  orderName: string;
 };
 
 /**
