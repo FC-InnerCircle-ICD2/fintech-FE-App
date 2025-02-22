@@ -17,7 +17,7 @@ export const API_ENDPOINTS = {
   },
   MANAGEMENT: {
     HISTORY: {
-      LIST: 'api/v1/managements/histories', // 결제 내역 목록 조회
+      LIST: 'api/v1/user/payments', // 결제 내역 목록 조회
       DETAIL: (historyId: string) =>
         `api/v1/managements/histories/${historyId}`, // 결제 내역 상세 조회
     },

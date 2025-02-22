@@ -8,6 +8,8 @@ import {
   CircleX,
   PlusCircle,
   ArrowLeft,
+  X,
+  LogOut,
 } from 'lucide-react';
 
 export const ICON_PALLETTE = {
@@ -20,4 +22,6 @@ export const ICON_PALLETTE = {
   CircleX,
   PlusCircle,
   ArrowLeft,
+  X,
+  LogOut,
 };

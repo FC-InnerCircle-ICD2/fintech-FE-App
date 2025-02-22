@@ -24,14 +24,27 @@ export type PaymentRequestRes = {
  * @param cancelledAt - 취소 일시
  * @param transactionStatus - 결제 승인 상태
  */
-export type TransactionsRes = {
+
+/**
+ * 트랜잭션 정보
+ */
+export interface Transaction {
   id: number;
-  store: string;
-  orderName: string;
+  paymentKey: string;
   amount: number;
-  approvedAt: string;
-  cancelledAt?: string;
-  transactionStatus: TransactionStatus;
+  status: TransactionStatus; // 가능한 상태값 명시
+  reason: string;
+  requestedAt: string; // ISO 날짜 형식
+  completedAt: string; // ISO 날짜 형식
+}
+export type TransactionsRes = {
+  paymentKey: string;
+  cardNumber: string;
+  accountId: number;
+  transactions: Transaction[];
+  paymentType: 'CARD' | 'BANK_TRANSFER' | 'MOBILE' | 'POINT';
+  orderId: string;
+  orderName: string;
 };
 
 /**

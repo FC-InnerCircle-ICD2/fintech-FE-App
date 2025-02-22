@@ -1,55 +1,47 @@
-import {
-  useOrderInfo,
-  useRequestPayment,
-  useCancelPayment,
-  useTransactionList,
-  useTransactionDetail,
-} from '@hooks/queries/usePayments';
-
 const ApiHookTest = () => {
   // 1. 주문 정보 조회 테스트
-  const { data: orderData, isLoading: orderLoading } =
-    useOrderInfo('test-order-123');
+  // const { data: orderData, isLoading: orderLoading } =
+  //   useOrderInfo('test-order-123');
 
   // 2. 결제 요청/취소 테스트
-  const { mutate: requestPayment, isPending: requestPending } =
-    useRequestPayment();
-  const { mutate: cancelPayment, isPending: cancelPending } =
-    useCancelPayment();
+  // const { mutate: requestPayment, isPending: requestPending } =
+  //   useRequestPayment();
+  // const { mutate: cancelPayment, isPending: cancelPending } =
+  //   useCancelPayment();
 
   // 3. 결제 내역 조회 테스트
-  const { data: transactionList } = useTransactionList();
-  const { data: transactionDetail } = useTransactionDetail('transaction-123');
+  // const { data: transactionList } = useTransactionList();
+  // const { data: transactionDetail } = useTransactionDetail('transaction-123');
 
   // 결제 요청 핸들러
-  const handlePaymentRequest = () => {
-    requestPayment('test-order-123', {
-      onSuccess: () => {
-        alert('결제가 성공적으로 처리되었습니다.');
-      },
-      onError: (error) => {
-        alert(`결제 처리 중 오류가 발생했습니다: ${error.message}`);
-      },
-    });
-  };
+  // const handlePaymentRequest = () => {
+  //   requestPayment('test-order-123', {
+  //     onSuccess: () => {
+  //       alert('결제가 성공적으로 처리되었습니다.');
+  //     },
+  //     onError: (error) => {
+  //       alert(`결제 처리 중 오류가 발생했습니다: ${error.message}`);
+  //     },
+  //   });
+  // };
 
   // 결제 취소 핸들러
-  const handlePaymentCancel = () => {
-    cancelPayment('test-order-123', {
-      onSuccess: () => {
-        alert('결제가 성공적으로 취소되었습니다.');
-      },
-      onError: (error) => {
-        alert(`결제 취소 중 오류가 발생했습니다: ${error.message}`);
-      },
-    });
-  };
+  // const handlePaymentCancel = () => {
+  //   cancelPayment('test-order-123', {
+  //     onSuccess: () => {
+  //       alert('결제가 성공적으로 취소되었습니다.');
+  //     },
+  //     onError: (error) => {
+  //       alert(`결제 취소 중 오류가 발생했습니다: ${error.message}`);
+  //     },
+  //   });
+  // };
 
-  if (orderLoading) return <div>주문 정보 로딩 중...</div>;
+  // if (orderLoading) return <div>주문 정보 로딩 중...</div>;
 
   return (
     <div className='p-4 space-y-8'>
-      <section>
+      {/* <section>
         <h2 className='text-xl font-bold mb-4'>🔍 주문 정보 테스트</h2>
         <div className='bg-gray-50 p-4 rounded-lg'>
           <p>주문 ID: {orderData?.orderId}</p>
@@ -95,7 +87,7 @@ const ApiHookTest = () => {
             </pre>
           </div>
         </div>
-      </section>
+      </section> */}
     </div>
   );
 };

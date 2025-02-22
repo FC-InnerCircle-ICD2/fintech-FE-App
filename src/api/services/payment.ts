@@ -4,7 +4,7 @@ import { API_ENDPOINTS } from '@constants/apiEndpoints';
 import type {
   TransactionDetailRes,
   PaymentRequestRes,
-  TransactionsPageRes,
+  TransactionsRes,
 } from '@type/responses/payment';
 import type { PaymentRequestReq } from '@type/requests/payment';
 
@@ -21,8 +21,14 @@ export const paymentService = {
   cancelPayment: (orderId: string) =>
     api.post(API_ENDPOINTS.PAYMENT.CANCEL(orderId), {}),
 
-  getTransactionList: () =>
-    api.get<TransactionsPageRes>(API_ENDPOINTS.MANAGEMENT.HISTORY.LIST),
+  getTransactionList: ({ page, limit }: { page: number; limit: number }) => {
+    return api.get<{ payments: TransactionsRes[] }>(
+      API_ENDPOINTS.MANAGEMENT.HISTORY.LIST,
+      {
+        searchParams: { page: page.toString(), limit: limit.toString() }, // ✅ page, limit 추가
+      },
+    );
+  },
 
   getTransactionDetail: (transactionId: string) =>
     api.get<TransactionDetailRes>(
