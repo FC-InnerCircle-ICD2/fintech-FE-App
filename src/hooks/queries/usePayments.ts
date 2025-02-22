@@ -28,15 +28,15 @@ export const useCancelPayment = () => {
 
 export const useTransactionList = (page: number, limit: number) => {
   return useSuspenseQuery({
-    queryKey: [QUERY_KEY.MANAGEMENT.HISTORY, page, limit], // ✅ queryKey에 page, limit 추가
-    queryFn: () => paymentService.getTransactionList({ page, limit }), // ✅ page, limit을 인자로 전달
+    queryKey: [QUERY_KEY.MANAGEMENT.HISTORY, page, limit],
+    queryFn: () => paymentService.getTransactionList({ page, limit }),
     select: (response) => {
       if (response.ok) {
         return response.data.payments;
       }
-      throw new Error(response.error.message); // ✅ 에러 핸들링 추가
+      throw new Error(response.error.message);
     },
-    // placeholderData: (previousData) => previousData ?? undefined, // ✅ 페이지네이션 시 이전 데이터 유지
+    // placeholderData: (previousData) => previousData ?? undefined,
   });
 };
 

@@ -46,7 +46,7 @@ const PaymentHistoryDetailModal = ({
                 요청 일시: {new Date(trx.requestedAt).toLocaleString()}
               </p>
               <p className='text-sm text-gray-500'>
-                생성 일시: {new Date(trx.createdAt).toLocaleString()}
+                생성 일시: {new Date(trx.completedAt).toLocaleString()}
               </p>
             </li>
           ))}{' '}

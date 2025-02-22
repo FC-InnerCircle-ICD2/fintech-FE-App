@@ -56,7 +56,7 @@ const PaymentList = () => {
                   </span>
                   <p className='text-xs text-gray-400'>
                     결제일:{' '}
-                    {new Date(latestTransaction.createdAt).toLocaleString()}{' '}
+                    {new Date(latestTransaction.completedAt).toLocaleString()}{' '}
                   </p>
                 </header>
                 <div className='flex flex-col gap-1 pb-4'>
