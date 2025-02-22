@@ -7,6 +7,7 @@ import type {
   TransactionsRes,
 } from '@type/responses/payment';
 import type { PaymentRequestReq } from '@type/requests/payment';
+import type { TransactionListFilter } from '@hooks/queries/usePayments';
 
 export const paymentService = {
   getOrderInfo: (orderToken: string) =>
@@ -21,11 +22,23 @@ export const paymentService = {
   cancelPayment: (orderId: string) =>
     api.post(API_ENDPOINTS.PAYMENT.CANCEL(orderId), {}),
 
-  getTransactionList: ({ page, limit }: { page: number; limit: number }) => {
+  getTransactionList: ({
+    startDate,
+    endDate,
+    status,
+    page,
+    limit,
+  }: TransactionListFilter) => {
     return api.get<{ payments: TransactionsRes[] }>(
       API_ENDPOINTS.MANAGEMENT.HISTORY.LIST,
       {
-        searchParams: { page: page.toString(), limit: limit.toString() }, // ✅ page, limit 추가
+        searchParams: {
+          startDate,
+          endDate,
+          status: status?.toString(),
+          page: page.toString(),
+          limit: limit.toString(),
+        },
       },
     );
   },
