@@ -8,16 +8,25 @@ import * as Yup from 'yup';
 import { cardService } from '@api/services/card';
 import { useMutation } from '@tanstack/react-query';
 import type { CardRegisterReq } from '@type/requests/card';
+import useModal from '@hooks/useModal';
 
 const AddCardPage = () => {
   const navigate = useNavigate();
+  const { openDialog, closeModal } = useModal();
 
   const { mutate, isPending } = useMutation({
     mutationKey: ['registerCard'],
     mutationFn: (cardData: CardRegisterReq) =>
       cardService.registerCard(cardData),
     onSuccess: () => {
-      navigate('/card');
+      openDialog('alert', {
+        title: '카드 등록 완료',
+        description: '카드 등록이 완료되었습니다.',
+        confirm: () => {
+          closeModal();
+          navigate('/card');
+        },
+      });
     },
     onError: (error) => {
       alert(`Error: ${error.message}`);
@@ -33,7 +42,7 @@ const AddCardPage = () => {
     },
     validationSchema: Yup.object({
       cardNumber: Yup.string()
-        .matches(/^(\d{4} \d{4} \d{4} \d{4})$/, 'Card number must be 16 digits')
+        .matches(/^(\d{4}-\d{4}-\d{4}-\d{4})$/, 'Card number must be 16 digits')
         .required('Card number is required'),
       expirationPeriod: Yup.string()
         .matches(
@@ -74,8 +83,8 @@ const AddCardPage = () => {
               <div className='text-sm'>Credit Card</div>
               <div className='text-lg font-bold'>VISA</div>
             </div>
-            <div className='text-xl tracking-[4px] font-mono mb-8'>
-              {formik.values.cardNumber || '•••• •••• •••• ••••'}
+            <div className='text-md tracking-[2px] font-mono mb-8'>
+              {formik.values.cardNumber || '••••-••••-••••-••••'}
             </div>
             <div className='flex justify-between items-end'>
               <div>
@@ -111,7 +120,7 @@ const AddCardPage = () => {
               <Input
                 type='text'
                 name='cardNumber'
-                placeholder='0000 0000 0000 0000'
+                placeholder='0000-0000-0000-0000'
                 value={formik.values.cardNumber}
                 onChange={(e) => {
                   let value = e.target.value;
@@ -119,7 +128,7 @@ const AddCardPage = () => {
                   if (value.length > 16) {
                     value = value.slice(0, 16);
                   }
-                  value = value.replace(/(.{4})/g, '$1 ').trim();
+                  value = value.match(/.{1,4}/g)?.join('-') || '';
                   formik.setFieldValue('cardNumber', value);
                 }}
                 onBlur={formik.handleBlur}
@@ -186,23 +195,24 @@ const AddCardPage = () => {
                 ) : null}
               </div>
             </div>
+
+            <Button
+              type='submit'
+              className='w-full text-white rounded-full'
+              variant='default'
+              size='large'
+              disabled={
+                formik.values.cardNumber.length !== 19 ||
+                formik.values.expirationPeriod.length !== 5 ||
+                formik.values.cvc.length !== 3 ||
+                !formik.values.isRepresentative
+              }
+              isPending={isPending}
+            >
+              카드 등록
+            </Button>
           </form>
         </div>
-
-        <Button
-          type='submit'
-          className='w-full text-white rounded-full'
-          variant='default'
-          size='large'
-          disabled={
-            formik.values.cardNumber.length !== 19 ||
-            formik.values.expirationPeriod.length !== 5 ||
-            formik.values.cvc.length !== 3
-          }
-          isPending={isPending}
-        >
-          카드 등록
-        </Button>
       </div>
     </PageLayout>
   );
