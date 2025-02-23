@@ -34,10 +34,16 @@ export interface CardItemProps
 
 const CardItem = forwardRef<HTMLDivElement, CardItemProps>(
   ({ card, variant, className, ...props }, ref) => {
+    const isRepresentative = card?.isRepresentative;
+
     return (
       <Card
         ref={ref}
-        className={cn(cardVariants({ variant }), className)}
+        className={cn(
+          cardVariants({ variant }),
+          className,
+          isRepresentative ? 'border-4 border-yellow-500' : 'border',
+        )}
         {...props}
       >
         {!card && (
