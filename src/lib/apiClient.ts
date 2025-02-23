@@ -91,6 +91,8 @@ export const api = {
     httpClient.post(url, { json: body, ...options }).json<ApiResponse<T>>(), // ✅ 여기서 ApiResponse<T>로 명확하게 정의
   put: <T, R>(url: string, body: R, options?: Options) =>
     httpClient.put(url, { json: body, ...options }).json<ApiResponse<T>>(), // ✅ 여기서 ApiResponse<T>로 명확하게 정의
+  patch: <T>(url: string, options?: Options) =>
+    httpClient.patch(url, options).json<ApiResponse<T>>(), // ✅ 여기서 ApiResponse<T>로 명확하게 정의
   delete: <T>(url: string, options?: Options) =>
     httpClient.delete(url, options).json<ApiResponse<T>>(), // ✅ 여기서 ApiResponse<T>로 명확하게 정의
 };
