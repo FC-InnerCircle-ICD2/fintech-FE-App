@@ -28,9 +28,9 @@ export const useCancelPayment = () => {
 };
 
 export type TransactionListFilter = {
-  startDate: string;
-  endDate: string;
-  status: TransactionStatus | 'null';
+  startDate?: string;
+  endDate?: string;
+  status?: TransactionStatus | 'null';
   page: number;
   limit: number;
 };

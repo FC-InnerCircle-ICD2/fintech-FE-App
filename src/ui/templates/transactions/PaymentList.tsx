@@ -29,7 +29,11 @@ const PaymentList = () => {
   });
   const { openModal } = useModal();
   if (isLoading) {
-    return <LoadingAnimation />;
+    return (
+      <div className='w-full mx-auto pt-12 pb-24 space-y-12'>
+        <LoadingAnimation />
+      </div>
+    );
   }
 
   if (isError) {

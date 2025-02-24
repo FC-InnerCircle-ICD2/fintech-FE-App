@@ -1,5 +1,4 @@
-import { Suspense } from 'react';
-import type { ComponentType } from 'react';
+import { Suspense, type ComponentType } from 'react';
 import { LoadingSpinner } from '@ui/components/loading/LoadingSpinner';
 
 interface WithSuspenseOptions {

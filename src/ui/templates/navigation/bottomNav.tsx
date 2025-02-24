@@ -21,13 +21,13 @@ export const BottomNavigation = ({ className }: BottomNavigationProps) => {
   return (
     <nav
       className={cn(
-        'fixed min-w-[375px] w-responsive_container bottom-0 left-[50%] translate-x-[-50%] z-50 bg-white',
+        'h-16 min-w-[375px] mx-auto w-responsive_container  bg-white',
         'border-t safe-area-bottom',
         theme.safe_area_inline_padding,
         className,
       )}
     >
-      <div className='h-16 max-w-md mx-auto flex items-center justify-around'>
+      <div className='h-full max-w-md mx-auto flex items-center justify-around'>
         {NAVIGATION_ITEMS.map((item) => (
           <NavigationItem
             key={item.id}
