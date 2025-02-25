@@ -7,7 +7,6 @@
 export const TRANSACTION_STATUS = {
   APPROVED: 'APPROVED',
   CANCELLED: 'CANCELLED',
-  REFUNDED: 'REFUNDED',
 } as const;
 
 /**

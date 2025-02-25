@@ -10,8 +10,8 @@ export const LoginPage = () => {
 
   const [isShow, setIsShow] = useState<boolean>(false);
   const [loginData, setLoginData] = useState<LoginReq>({
-    email: 'test@test.com',
-    password: 'password123',
+    email: 'pay200tester@pay.com',
+    password: 'qwer1234',
   });
 
   const onChangeValue = (e: React.ChangeEvent<HTMLInputElement>) => {
