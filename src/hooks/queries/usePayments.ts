@@ -1,5 +1,5 @@
 import { paymentService } from '@api/services/payment';
-import { useQuery, useMutation, useSuspenseQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { QUERY_KEY } from '@constants/apiEndpoints';
 import type { TransactionStatus } from '@type/payment';
 
@@ -35,39 +35,32 @@ export type TransactionListFilter = {
   limit: number;
 };
 
-export const useTransactionList = ({
-  startDate,
-  endDate,
-  status,
-  page,
-  limit,
-}: TransactionListFilter) => {
-  return useSuspenseQuery({
-    queryKey: [
-      QUERY_KEY.MANAGEMENT.HISTORY,
-      startDate,
-      endDate,
-      status,
-      page,
-      limit,
-    ],
-    queryFn: () =>
-      paymentService.getTransactionList({
-        startDate,
-        endDate,
-        status,
-        page,
-        limit,
-      }),
-    select: (response) => {
-      if (response.ok) {
-        return response.data.payments;
-      }
-      throw new Error(response.error.message);
-    },
-    // placeholderData: (previousData) => previousData ?? undefined,
-  });
-};
+// export const useTransactionList = ({
+//   startDate,
+//   endDate,
+//   status,
+//   page,
+//   limit,
+// }: TransactionListFilter) => {
+//   return useSuspenseQuery({
+//     queryKey: [QUERY_KEY.MANAGEMENT.HISTORY, startDate, endDate, page, limit],
+//     queryFn: () =>
+//       paymentService.getTransactionList({
+//         startDate,
+//         endDate,
+//         status,
+//         page,
+//         limit,
+//       }),
+//     select: (response) => {
+//       if (response.ok) {
+//         return response.data.payments;
+//       }
+//       throw new Error(response.error.message);
+//     },
+//     // placeholderData: (previousData) => previousData ?? undefined,
+//   });
+// };
 
 export const useTransactionDetail = (id: string) => {
   return useQuery({

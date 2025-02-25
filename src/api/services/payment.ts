@@ -28,7 +28,7 @@ export const paymentService = {
     status,
     page,
     limit,
-  }: TransactionListFilter) => {
+  }: Required<TransactionListFilter>) => {
     return api.get<{ payments: TransactionsRes[] }>(
       API_ENDPOINTS.MANAGEMENT.HISTORY.LIST,
       {
