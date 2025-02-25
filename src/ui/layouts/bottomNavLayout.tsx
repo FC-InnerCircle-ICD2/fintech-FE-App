@@ -9,7 +9,7 @@ import { ROUTES } from '@constants/routes';
 export const BottomNavLayout = () => {
   const { logout } = useAuth();
   return (
-    <div className='grid h-full grid-rows-[3.5rem_auto_4rem] '>
+    <div className='grid h-full grid-rows-[3.5rem_auto_4rem]'>
       <header
         className={cn(
           `grid-rows-1 sticky bg-white justify-between flex items-center top-0 h-14 w-responsive_container mx-auto border-b`,
@@ -23,7 +23,9 @@ export const BottomNavLayout = () => {
           <Icon name='LogOut' size={20} />
         </button>
       </header>
-      <main className={cn('w-responsive_container mx-auto bg-white ')}>
+      <main
+        className={cn('w-responsive_container mx-auto bg-white overflow-auto')}
+      >
         <Outlet />
       </main>
       <BottomNavigation />
