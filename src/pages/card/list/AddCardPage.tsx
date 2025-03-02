@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import PageLayout from '@ui/layouts/PageLayout';
 import Button from '@ui/components/button/Button';
 import { Input } from '@lib/shadcn/components/ui/input';
@@ -17,8 +17,10 @@ import { QUERY_KEY } from '@constants/apiEndpoints';
 
 const AddCardPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { openDialog, closeModal } = useModal();
 
+  const currentState = location.state;
   const { mutate, isPending } = useMutation({
     mutationKey: [QUERY_KEY.CARD.REGISTER],
     mutationFn: (cardData: CardRegisterReq) =>
@@ -29,7 +31,9 @@ const AddCardPage = () => {
         description: '카드 등록이 완료되었습니다.',
         confirm: () => {
           closeModal();
-          navigate(ROUTES.CARD.LIST);
+          navigate(currentState?.returnPath || ROUTES.CARD.LIST, {
+            state: currentState,
+          });
         },
       });
     },
@@ -40,7 +44,9 @@ const AddCardPage = () => {
         description: '카드 등록에 실패했습니다.',
         confirm: () => {
           closeModal();
-          navigate(ROUTES.CARD.LIST);
+          navigate(currentState?.returnPath || ROUTES.CARD.LIST, {
+            state: currentState,
+          });
         },
       });
     },
