@@ -8,22 +8,26 @@ import { cn } from '@lib/shadcn/lib/utils';
 import type { CardData } from '@type/responses/card';
 import Icon from '../icon/Icon';
 
-const cardVariants = cva('h-[200px] w-[320px] rounded-xl p-6', {
-  variants: {
-    variant: {
-      default: 'bg-gradient-to-br from-blue-600 to-blue-400 text-white',
-      newCard: 'bg-[#D6D6D6]',
+const cardVariants = cva(
+  'rounded-xl relative shadow-2xl transform transition-transform',
+  {
+    variants: {
+      variant: {
+        default:
+          'bg-gradient-to-br from-purple-500 via-pink-500 to-indigo-500 text-white',
+        newCard: 'bg-[#D6D6D6]',
+      },
+      size: {
+        default: 'h-[180px] w-[280px] text-xs p-6',
+        small: 'h-[160px] w-[250px] text-[0.75rem] p-4',
+      },
     },
-    size: {
-      default: 'h-[200px] w-[320px]',
-      small: 'h-[180px] w-[280px]',
+    defaultVariants: {
+      variant: 'default',
+      size: 'default',
     },
   },
-  defaultVariants: {
-    variant: 'default',
-    size: 'default',
-  },
-});
+);
 
 export interface CardItemProps
   extends HTMLAttributes<HTMLDivElement>,
@@ -33,19 +37,24 @@ export interface CardItemProps
 }
 
 const CardItem = forwardRef<HTMLDivElement, CardItemProps>(
-  ({ card, variant, className, ...props }, ref) => {
+  ({ card, variant, size, className, ...props }, ref) => {
     const isRepresentative = card?.isRepresentative;
 
     return (
       <Card
         ref={ref}
         className={cn(
-          cardVariants({ variant }),
+          cardVariants({ variant, size }),
           className,
-          isRepresentative ? 'border-4 border-yellow-500' : 'border',
+          isRepresentative ? 'border-4 border-blue-500' : 'border',
         )}
         {...props}
       >
+        {isRepresentative && (
+          <div className='absolute top-2 right-2 bg-blue-500 text-white rounded-full p-1'>
+            <Icon name='Check' size={12} />
+          </div>
+        )}
         {!card && (
           <CardContent className='h-full flex flex-col items-center justify-center p-6'>
             <Icon
@@ -71,7 +80,7 @@ const CardItem = forwardRef<HTMLDivElement, CardItemProps>(
             </CardHeader>
 
             <CardContent className='space-y-6 mt-6 p-0'>
-              <div className='text-md tracking-[4px] font-mono'>
+              <div className='tracking-[4px] font-mono'>
                 {formatCardNumber(card.cardNumber)}
               </div>
               <div className='flex justify-between items-end'>

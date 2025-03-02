@@ -2,6 +2,7 @@ import { cardService } from '@api/services/card';
 import { QUERY_KEY } from '@constants/apiEndpoints';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import useModal from './useModal';
+import type { CardData } from '@type/responses/card';
 
 export const useDeleteCard = () => {
   const { openDialog, closeModal } = useModal();
@@ -13,15 +14,21 @@ export const useDeleteCard = () => {
       return cardService.deleteCard(cardId);
     },
     onSuccess: (res) => {
-      if (res.ok) {
-        openDialog('alert', {
-          title: '카드 삭제 완료',
-          description: '카드 삭제가 완료되었습니다.',
-          confirm: () => {
-            closeModal();
+      if (res.ok && res.data) {
+        const currentCard = res.data as CardData;
+        queryClient.setQueryData(
+          [QUERY_KEY.CARD.LIST],
+          (oldData: { ok: boolean; data: CardData[] } | undefined) => {
+            if (!oldData || !Array.isArray(oldData.data)) return oldData;
+            return {
+              ...oldData,
+              data: oldData.data.filter(
+                (card: CardData) => card.id !== currentCard.id,
+              ),
+            };
           },
-        });
-        queryClient.invalidateQueries({ queryKey: [QUERY_KEY.CARD.LIST] });
+        );
+        closeModal();
       } else {
         openDialog('alert', {
           title: '카드 삭제 실패',

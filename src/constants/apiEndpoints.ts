@@ -13,7 +13,7 @@ export const API_ENDPOINTS = {
       SSE_TEMP: 'payment/order/sse-temp',
     },
     REQUEST: `api/v1/p/user/authentication/simple`, // 간편 결제 요청
-    CANCEL: (orderId: string) => `api/v1/payments/${orderId}/cancel`, // QR 결제 취소
+    CANCEL: 'api/v1/p/user/request/cancel', // QR 결제 취소
   },
   MANAGEMENT: {
     HISTORY: {

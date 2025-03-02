@@ -6,7 +6,6 @@ import { LoadingSpinner } from '@ui/components/loading/LoadingSpinner';
 import Button from '@ui/components/button/Button';
 import { useLocationState } from '@hooks/useLocationState';
 
-// import { useOrderInfo } from '@hooks/queries/usePayments';
 import { parseQueryString } from '@lib/parseQueryString';
 import { useParseJwt } from '@hooks/useParseJwt';
 import { ROUTES } from '@constants/routes';
@@ -56,7 +55,13 @@ const QRPaymentDetailPage = () => {
     <PageLayout className='bg-gradient-to-br from-[#3c1488] via-[#408693] to-[#1e7f84] w-full  flex justify-center items-center'>
       <div className='bg-white w-[320px] h-[600px] rounded-[1rem] flex flex-col justify-center items-center p-8'>
         <>
-          {orderData && <QRDetailContent orderData={orderData} token={token} />}
+          {orderData && (
+            <QRDetailContent
+              orderData={orderData}
+              token={token}
+              expiredAt={expiredAt}
+            />
+          )}
           {orderLoading && <LoadingSpinner />}
           {orderError && (
             <>
@@ -66,7 +71,7 @@ const QRPaymentDetailPage = () => {
               <Button
                 className='w-[calc(100%-32px)] h-12 text-[#18A0FB] font-bold rounded-full mt-4'
                 isPending={orderLoading}
-                onClick={() => navigate(`${ROUTES.PAYMENT.QR}`)}
+                onClick={() => navigate(ROUTES.PAYMENT.QR)}
               >
                 QR 다시 시도하기
               </Button>

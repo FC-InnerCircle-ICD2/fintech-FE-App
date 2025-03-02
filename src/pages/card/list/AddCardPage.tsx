@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import PageLayout from '@ui/layouts/PageLayout';
 import Button from '@ui/components/button/Button';
 import { Input } from '@lib/shadcn/components/ui/input';
@@ -9,13 +9,20 @@ import { cardService } from '@api/services/card';
 import { useMutation } from '@tanstack/react-query';
 import type { CardRegisterReq } from '@type/requests/card';
 import useModal from '@hooks/useModal';
+import Icon from '@ui/components/icon/Icon';
+import { CARD_COMPANIES } from '@constants/card';
+import CardCompanyCombobox from '@ui/components/card/CardCompanyComboBox';
+import { ROUTES } from '@constants/routes';
+import { QUERY_KEY } from '@constants/apiEndpoints';
 
 const AddCardPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { openDialog, closeModal } = useModal();
 
+  const currentState = location.state;
   const { mutate, isPending } = useMutation({
-    mutationKey: ['registerCard'],
+    mutationKey: [QUERY_KEY.CARD.REGISTER],
     mutationFn: (cardData: CardRegisterReq) =>
       cardService.registerCard(cardData),
     onSuccess: () => {
@@ -24,12 +31,24 @@ const AddCardPage = () => {
         description: '카드 등록이 완료되었습니다.',
         confirm: () => {
           closeModal();
-          navigate('/card');
+          navigate(currentState?.returnPath || ROUTES.CARD.LIST, {
+            state: currentState,
+          });
         },
       });
     },
     onError: (error) => {
-      alert(`Error: ${error.message}`);
+      console.log('error : ', error);
+      openDialog('alert', {
+        title: '카드 등록 실패',
+        description: '카드 등록에 실패했습니다.',
+        confirm: () => {
+          closeModal();
+          navigate(currentState?.returnPath || ROUTES.CARD.LIST, {
+            state: currentState,
+          });
+        },
+      });
     },
   });
 
@@ -39,6 +58,7 @@ const AddCardPage = () => {
       expirationPeriod: '',
       cvc: '',
       isRepresentative: true,
+      cardCompany: '',
     },
     validationSchema: Yup.object({
       cardNumber: Yup.string()
@@ -53,12 +73,13 @@ const AddCardPage = () => {
       cvc: Yup.string()
         .matches(/^[0-9]{3}$/, 'Invalid CVC')
         .required('CVC is required'),
+      cardCompany: Yup.string().required('Card company is required'),
     }),
     onSubmit: (values) => {
-      console.log(values);
       mutate(values);
     },
   });
+
   return (
     <PageLayout
       className='w-full h-full flex flex-col p-6'
@@ -74,14 +95,24 @@ const AddCardPage = () => {
         )`,
       }}
     >
-      <div className='w-full max-w-md mx-auto'>
-        <h1 className='text-2xl font-bold text-white mb-8'>카드 등록</h1>
+      <div className='relative flex items-center justify-center mb-6'>
+        <button
+          className='absolute left-0 flex items-center text-gray-700 hover:text-gray-900'
+          onClick={() => navigate(-1)}
+        >
+          <Icon name='ArrowLeftIcon' size={24} className='mr-2' />
+        </button>
+        <h1 className='text-xl font-bold text-gray-800'>카드 등록</h1>
+      </div>
 
-        <div className='bg-white/10 backdrop-blur-sm rounded-2xl p-6 mb-6'>
-          <div className='bg-gradient-to-br from-blue-600 to-blue-400 text-white rounded-xl p-6 mb-6'>
+      <div className='w-full max-w-md mx-auto'>
+        <div className='bg-white/10 backdrop-blur-sm rounded-2xl p-8 mb-6 shadow-lg'>
+          <div className='bg-gradient-to-br from-blue-600 to-blue-400 text-white rounded-xl p-6 mb-6 shadow-md'>
             <div className='flex justify-between items-center mb-8'>
               <div className='text-sm'>Credit Card</div>
-              <div className='text-lg font-bold'>VISA</div>
+              <div className='text-lg font-bold'>
+                {formik.values.cardCompany || 'VISA'}
+              </div>
             </div>
             <div className='text-md tracking-[2px] font-mono mb-8'>
               {formik.values.cardNumber || '••••-••••-••••-••••'}
@@ -132,13 +163,22 @@ const AddCardPage = () => {
                   formik.setFieldValue('cardNumber', value);
                 }}
                 onBlur={formik.handleBlur}
-                className='bg-white/20 border-white/30 text-white placeholder:text-white/50'
+                className='bg-white/20 border-white/30 text-white placeholder:text-white/50 rounded-lg p-2'
               />
               {formik.touched.cardNumber && formik.errors.cardNumber ? (
                 <div className='text-red-500 text-sm'>
                   {formik.errors.cardNumber}
                 </div>
               ) : null}
+            </div>
+
+            <div className='space-y-2'>
+              <Label className='text-white text-md'>Card Company</Label>
+              <CardCompanyCombobox
+                cardCompanyList={[...CARD_COMPANIES]}
+                cardCompany={formik.values.cardCompany}
+                setCardCompany={formik.setFieldValue}
+              />
             </div>
 
             <div className='grid grid-cols-2 gap-4'>
@@ -161,7 +201,7 @@ const AddCardPage = () => {
                     formik.setFieldValue('expirationPeriod', value);
                   }}
                   onBlur={formik.handleBlur}
-                  className='bg-white/20 border-white/30 text-white placeholder:text-white/50'
+                  className='bg-white/20 border-white/30 text-white placeholder:text-white/50 rounded-lg p-2'
                 />
                 {formik.touched.expirationPeriod &&
                 formik.errors.expirationPeriod ? (
@@ -186,7 +226,7 @@ const AddCardPage = () => {
                     formik.setFieldValue('cvc', value);
                   }}
                   onBlur={formik.handleBlur}
-                  className='bg-white/20 border-white/30 text-white placeholder:text-white/50'
+                  className='bg-white/20 border-white/30 text-white placeholder:text-white/50 rounded-lg p-2'
                 />
                 {formik.touched.cvc && formik.errors.cvc ? (
                   <div className='text-red-500 text-sm'>
@@ -198,14 +238,15 @@ const AddCardPage = () => {
 
             <Button
               type='submit'
-              className='w-full text-white rounded-full'
+              className='w-full text-white rounded-full bg-blue-500 hover:bg-blue-600 transition-colors'
               variant='default'
               size='large'
               disabled={
                 formik.values.cardNumber.length !== 19 ||
                 formik.values.expirationPeriod.length !== 5 ||
                 formik.values.cvc.length !== 3 ||
-                !formik.values.isRepresentative
+                !formik.values.isRepresentative ||
+                !formik.values.cardCompany
               }
               isPending={isPending}
             >

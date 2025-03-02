@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useMutation } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import PageLayout from '@ui/layouts/PageLayout';
 import {
   Carousel,
@@ -10,56 +10,34 @@ import {
 } from '@lib/shadcn/components/ui/carousel';
 import CardItem from '@ui/components/card/CardItem';
 import Button from '@ui/components/button/Button';
+import LoadingAnimation from '@ui/components/loading/LoadingAnimation';
+import ErrorComponent from '@ui/components/error/ErrorComponent';
 import { ROUTES } from '@constants/routes';
+import { QUERY_KEY } from '@constants/apiEndpoints';
+
 import useModal from '@hooks/useModal';
 import { useRepresentativeCard } from '@hooks/useRepresenCard';
 import { useDeleteCard } from '@hooks/useDeleteCard';
+import { useCardList } from '@hooks/queries/useCard';
 import type { CardData } from '@type/responses/card';
-import { QUERY_KEY } from '@constants/apiEndpoints';
-import { cardService } from '@api/services/card';
 
 const CardPage = () => {
   const navigate = useNavigate();
   const { openDialog, closeModal } = useModal();
+  const queryClient = useQueryClient();
+  const { data, isLoading, isError } = useCardList();
   const { setRepresentativeCard } = useRepresentativeCard();
   const { deleteCard } = useDeleteCard();
 
-  const [cardList, setCardList] = useState<CardData[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [api, setApi] = useState<CarouselApi>();
 
-  const { mutate: getCardList } = useMutation({
-    mutationKey: [QUERY_KEY.CARD.LIST],
-    mutationFn: () => cardService.getCardList(),
-    onSuccess: (res) => {
-      if (res.ok) {
-        if (res.data) {
-          setCardList(res.data);
-        } else {
-          setCardList([]);
-        }
-      }
-    },
-    onError: (error) => {
-      console.log(error);
-      return (
-        <div>
-          <p>카드 목록 조회 실패</p>
-        </div>
-      );
-    },
-  });
-
   useEffect(() => {
-    getCardList();
-  }, []);
-
-  useEffect(() => {
-    console.log(api);
-
-    api?.on('select', () => {
-      setCurrentIndex(api?.selectedScrollSnap() + 1 || 0);
-    });
+    if (api) {
+      api.on('select', () => {
+        setCurrentIndex(api.selectedScrollSnap() + 1 || 0);
+      });
+    }
   }, [api]);
 
   useEffect(() => {
@@ -67,14 +45,12 @@ const CardPage = () => {
   }, [currentIndex]);
 
   const handleNewCardClick = () => {
-    navigate(`${ROUTES.CARD.ADD}`);
+    navigate(ROUTES.CARD.ADD);
   };
 
   const handleRepresentativeCardClick = () => {
-    const currentCard = cardList[currentIndex - 1];
-    console.log('주 카드로 설정', currentIndex);
-    console.log('currentCard', cardList);
-    console.log('currentCard', currentCard);
+    const currentCard = data?.[currentIndex - 1];
+    if (!currentCard) return;
 
     if (currentCard.isRepresentative) {
       openDialog('alert', {
@@ -89,14 +65,40 @@ const CardPage = () => {
           setRepresentativeCard.mutate(currentCard.id, {
             onSuccess: (res) => {
               if (res.ok) {
-                console.log('대표 카드 설정 성공:', res);
                 if (res.data) {
-                  console.log('대표 카드 설정 성공:', res.data);
+                  queryClient.setQueryData(
+                    [QUERY_KEY.CARD.LIST],
+                    (
+                      oldData: { ok: boolean; data: CardData[] } | undefined,
+                    ) => {
+                      if (!oldData || !Array.isArray(oldData.data)) {
+                        return oldData;
+                      }
+                      return {
+                        ...oldData,
+                        data: oldData.data.map((card) =>
+                          card.id === currentCard.id
+                            ? { ...card, isRepresentative: true }
+                            : { ...card, isRepresentative: false },
+                        ),
+                      };
+                    },
+                  );
                 }
               } else {
-                console.log('대표 카드 설정 실패:', res);
-                // 실패 처리 로직 추가
+                openDialog('alert', {
+                  title: '대표 카드 설정 실패',
+                  description: '대표 카드 설정에 실패했습니다.',
+                });
               }
+              closeModal();
+            },
+            onError: (error) => {
+              console.error('Mutation onError executed', error);
+              openDialog('alert', {
+                title: '오류 발생',
+                description: '카드 설정 중 오류가 발생했습니다.',
+              });
               closeModal();
             },
           });
@@ -106,19 +108,24 @@ const CardPage = () => {
   };
 
   const handleDeleteCardClick = () => {
-    const currentCard = cardList[currentIndex - 1];
-    if (currentCard) {
-      openDialog('alert', {
-        title: '카드 삭제',
-        description: '카드를 삭제하시겠습니까?',
-        confirm: () => {
-          deleteCard.mutate(currentCard.id);
-          getCardList();
-          closeModal();
-        },
-      });
-    }
+    const currentCard = data?.[currentIndex - 1];
+    if (!currentCard) return;
+    openDialog('confirm', {
+      title: '카드 삭제',
+      description: '카드를 삭제하시겠습니까?',
+      confirm: () => {
+        deleteCard.mutate(currentCard.id);
+      },
+    });
   };
+
+  if (isLoading) {
+    return <LoadingAnimation />;
+  }
+
+  if (isError || !data) {
+    return <ErrorComponent />;
+  }
 
   return (
     <PageLayout
@@ -136,20 +143,18 @@ const CardPage = () => {
         )`,
       }}
     >
-      <div className='bg-white/10 backdrop-blur-sm rounded-2xl py-6 mb-6 flex'>
+      <div className='bg-white/10 backdrop-blur-sm rounded-2xl pt-6 mb-6 flex'>
         <Carousel className='w-full' setApi={setApi}>
-          <CarouselContent className='ml-4 mr-8'>
-            {cardList.length > 0 ? (
+          <CarouselContent className='ml-4 mr-8 pb-6'>
+            {data && data.length > 0 ? (
               <>
-                {cardList.map((card, index) => (
-                  <>
-                    <CarouselItem key={index} className='basis-auto'>
-                      <CardItem card={card} />
-                    </CarouselItem>
-                  </>
+                {data.map((card, index) => (
+                  <CarouselItem key={index} className='basis-auto'>
+                    <CardItem card={card} />
+                  </CarouselItem>
                 ))}
                 <CarouselItem
-                  key={cardList.length + 1}
+                  key={data.length + 1}
                   className='basis-auto'
                   onClick={handleNewCardClick}
                 >
@@ -157,21 +162,16 @@ const CardPage = () => {
                 </CarouselItem>
               </>
             ) : (
-              <>
-                <CarouselItem
-                  onClick={handleNewCardClick}
-                  className='basis-auto'
-                >
-                  <CardItem variant='newCard' />
-                </CarouselItem>
-              </>
+              <CarouselItem onClick={handleNewCardClick} className='basis-auto'>
+                <CardItem variant='newCard' />
+              </CarouselItem>
             )}
           </CarouselContent>
         </Carousel>
       </div>
-      {cardList.length > 0 && (
+      {data && data.length > 0 && (
         <div
-          className={`flex flex-col items-center ${currentIndex === cardList.length + 1 ? 'invisible' : ''}`}
+          className={`flex flex-col items-center ${currentIndex === data.length + 1 ? 'invisible' : ''}`}
         >
           <Button
             className=' text-white px-6 py-3 rounded-full mb-5'
