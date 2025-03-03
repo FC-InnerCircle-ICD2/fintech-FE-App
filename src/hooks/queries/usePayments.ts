@@ -23,7 +23,7 @@ import type { TransactionStatus } from '@type/payment';
 
 export const useCancelPayment = () => {
   return useMutation({
-    mutationFn: (orderId: string) => paymentService.cancelPayment(orderId),
+    mutationFn: (token: string) => paymentService.cancelPayment(token),
   });
 };
 
