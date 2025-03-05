@@ -13,6 +13,8 @@ import {
   ArrowLeftIcon,
   ChevronDown,
   Check,
+  ListFilter,
+  RotateCcw,
 } from 'lucide-react';
 
 export const ICON_PALLETTE = {
@@ -30,4 +32,6 @@ export const ICON_PALLETTE = {
   ArrowLeftIcon,
   ChevronDown,
   Check,
+  ListFilter,
+  RotateCcw,
 };

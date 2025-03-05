@@ -8,7 +8,7 @@ import ErrorComponent from '@ui/components/error/ErrorComponent';
 import LoadingAnimation from '@ui/components/loading/LoadingAnimation';
 import PaymentHistoryDetailModal from '../modal/PaymentHistoryDetailModal';
 import Icon from '@ui/components/icon/Icon';
-import { TRANSACTION_STATUS } from '@constants/payment';
+import PaymentListFilter from './PaymentListFilter';
 
 /**
  * @todo 리스트 가상화 하기
@@ -54,7 +54,7 @@ const PaymentList = () => {
           API_ENDPOINTS.MANAGEMENT.HISTORY.LIST,
           {
             searchParams: {
-              startDate: '2024-01-01',
+              startDate: '2020-01-01',
               endDate: formattedUTCDate,
               page: pageParam.toString(),
               limit: LIMIT_COUNT.toString(),
@@ -92,28 +92,25 @@ const PaymentList = () => {
 
   return (
     <>
-      {/* <h1 className='text-2xl font-bold text-gray-900 text-center pt-8 pb-8'>
-        결제 내역
-      </h1> */}
-      <div className='sticky top-0 bg-white h-[3rem] border-b'>
-        <div className='flex items-center h-full px-4'>
-          <select name='status' id=''>
-            <option value=''>전체</option>
-            <option value={TRANSACTION_STATUS.APPROVED}>
-              {TRANSACTION_STATUS.APPROVED}
-            </option>
-            <option value={TRANSACTION_STATUS.CANCELLED}>
-              {TRANSACTION_STATUS.CANCELLED}
-            </option>
-          </select>
-          <div>
-            <input type='date' />
-            <input type='date' value={formattedUTCDate} />
-          </div>
+      <div className='w-full mx-auto px-4 pt-4 pb-20 bg-gray-50'>
+        <div className='flex justify-between items-center pt-8 pb-4'>
+          <div></div>
+          <Button
+            variant={'outline_default'}
+            width={'fit'}
+            size={'medium'}
+            rounded
+            className='text-xs'
+            onClick={() =>
+              openModal(<PaymentListFilter />, {
+                enableOverlay: false,
+                enableOverlayClickClose: false,
+              })
+            }
+          >
+            <Icon name='ListFilter' size={16} /> Filter
+          </Button>
         </div>
-      </div>
-
-      <div className='w-full mx-auto space-y-12 px-4 pt-4 pb-20 bg-gray-50'>
         {allPayments.length === 0 ? (
           <p className='text-gray-500'>결제 내역이 없습니다.</p>
         ) : (
