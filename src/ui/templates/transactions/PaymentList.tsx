@@ -7,6 +7,8 @@ import Button from '@ui/components/button/Button';
 import ErrorComponent from '@ui/components/error/ErrorComponent';
 import LoadingAnimation from '@ui/components/loading/LoadingAnimation';
 import PaymentHistoryDetailModal from '../modal/PaymentHistoryDetailModal';
+import Icon from '@ui/components/icon/Icon';
+import { TRANSACTION_STATUS } from '@constants/payment';
 
 /**
  * @todo 리스트 가상화 하기
@@ -34,7 +36,7 @@ type PaymentHistoryResponse = {
   payments: TransactionsRes[];
 };
 
-const LIMIT_COUNT = 3;
+const LIMIT_COUNT = 10;
 
 /**
  * 결제 내역 리스트 컴포넌트
@@ -89,87 +91,110 @@ const PaymentList = () => {
   const allPayments = data.pages.flatMap((page) => page.payments);
 
   return (
-    <div className='w-full mx-auto pt-12 pb-24 space-y-12'>
-      <h1 className='text-2xl font-bold text-gray-900 text-center'>
+    <>
+      {/* <h1 className='text-2xl font-bold text-gray-900 text-center pt-8 pb-8'>
         결제 내역
-      </h1>
+      </h1> */}
+      <div className='sticky top-0 bg-white h-[3rem] border-b'>
+        <div className='flex items-center h-full px-4'>
+          <select name='status' id=''>
+            <option value=''>전체</option>
+            <option value={TRANSACTION_STATUS.APPROVED}>
+              {TRANSACTION_STATUS.APPROVED}
+            </option>
+            <option value={TRANSACTION_STATUS.CANCELLED}>
+              {TRANSACTION_STATUS.CANCELLED}
+            </option>
+          </select>
+          <div>
+            <input type='date' />
+            <input type='date' value={formattedUTCDate} />
+          </div>
+        </div>
+      </div>
 
-      {allPayments.length === 0 ? (
-        <p className='text-gray-500'>결제 내역이 없습니다.</p>
-      ) : (
-        <ul className='flex flex-col gap-4'>
-          {allPayments.map((paymentItem) => {
-            const hasTransaction = paymentItem.transactions.length > 0;
-            const latestTransaction = hasTransaction
-              ? paymentItem.transactions[0]
-              : null;
+      <div className='w-full mx-auto space-y-12 px-4 pt-4 pb-20 bg-gray-50'>
+        {allPayments.length === 0 ? (
+          <p className='text-gray-500'>결제 내역이 없습니다.</p>
+        ) : (
+          <div className='flex flex-col gap-4'>
+            <ul className='flex flex-col gap-4'>
+              {allPayments.map((paymentItem) => {
+                const hasTransaction = paymentItem.transactions.length > 0;
+                const latestTransaction = hasTransaction
+                  ? paymentItem.transactions[0]
+                  : null;
 
-            return (
-              <li
-                key={paymentItem.paymentKey}
-                className='bg-white rounded-xl border px-6 py-4 border-gray-200'
-              >
-                <header className='flex justify-between gap-4 items-center pb-2'>
-                  {latestTransaction && (
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusClass(
-                        latestTransaction.status,
-                      )}`}
+                return (
+                  <li
+                    key={paymentItem.paymentKey}
+                    className='bg-white rounded-xl border px-4 py-4 border-gray-200'
+                  >
+                    <header className='flex justify-between gap-4 items-center pb-2'>
+                      {latestTransaction && (
+                        <span
+                          className={`px-2 py-1 rounded-full text-[10px] font-medium ${getStatusClass(
+                            latestTransaction.status,
+                          )}`}
+                        >
+                          {latestTransaction.status}
+                        </span>
+                      )}
+                      <p className='text-xs text-gray-400'>
+                        결제일시:{' '}
+                        {latestTransaction &&
+                          new Date(
+                            latestTransaction.completedAt,
+                          ).toLocaleString()}
+                      </p>
+                    </header>
+                    <div className='flex flex-col gap-1 pb-4'>
+                      <h2 className='text-base font-semibold text-gray-800 overflow-hidden text-ellipsis line-clamp-1'>
+                        {paymentItem.orderName}
+                      </h2>
+                      <div className='flex justify-between items-end'>
+                        <p className='text-[14px] text-gray-500'>
+                          **** **** **** {paymentItem.cardNumber.slice(-4)}
+                        </p>
+                        <p className='text-xl font-semibold'>
+                          {latestTransaction &&
+                            latestTransaction.amount.toLocaleString()}
+                          원
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      variant='outline_primary'
+                      onClick={() =>
+                        openModal(
+                          <PaymentHistoryDetailModal
+                            data={paymentItem.transactions}
+                          />,
+                        )
+                      }
                     >
-                      {latestTransaction.status}
-                    </span>
-                  )}
-                  <p className='text-xs text-gray-400'>
-                    결제일:{' '}
-                    {latestTransaction &&
-                      new Date(latestTransaction.completedAt).toLocaleString()}
-                  </p>
-                </header>
-                <div className='flex flex-col gap-1 pb-4'>
-                  <h2 className='text-base font-semibold text-gray-800 overflow-hidden text-ellipsis line-clamp-1'>
-                    {paymentItem.orderName}
-                  </h2>
-                  <div className='flex justify-between items-center'>
-                    <p className='text-2xl font-semibold'>
-                      {latestTransaction &&
-                        latestTransaction.amount.toLocaleString()}
-                      원
-                    </p>
-                    <p className='text-sm text-gray-500'>
-                      카드 번호: **** **** ****{' '}
-                      {paymentItem.cardNumber.slice(-4)}
-                    </p>
-                  </div>
-                </div>
-                <Button
-                  variant='outline_primary'
-                  onClick={() =>
-                    openModal(
-                      <PaymentHistoryDetailModal
-                        data={paymentItem.transactions}
-                      />,
-                    )
-                  }
-                >
-                  상세내역 보기
-                </Button>
-              </li>
-            );
-          })}
-          {hasNextPage && (
-            <li>
+                      상세내역 보기
+                    </Button>
+                  </li>
+                );
+              })}
+            </ul>
+            {hasNextPage && (
               <Button
+                className='text-[14px] '
                 onClick={() => fetchNextPage()}
                 isPending={isFetchingNextPage}
-                size={'extraLarge'}
+                variant={'gray'}
+                size={'large'}
               >
                 더 보기
+                <Icon name='ChevronDown' />
               </Button>
-            </li>
-          )}
-        </ul>
-      )}
-    </div>
+            )}
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 

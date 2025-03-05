@@ -3,7 +3,7 @@ import PageLayout from '@ui/layouts/PageLayout';
 
 const TransactionsListPage = () => {
   return (
-    <PageLayout hasNav>
+    <PageLayout hasNav className='px-0'>
       <PaymentList />
     </PageLayout>
   );
