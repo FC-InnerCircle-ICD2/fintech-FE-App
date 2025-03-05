@@ -8,9 +8,11 @@ import {
   CircleX,
   PlusCircle,
   ArrowLeft,
-  ChevronDown,
   X,
   LogOut,
+  ArrowLeftIcon,
+  ChevronDown,
+  Check,
 } from 'lucide-react';
 
 export const ICON_PALLETTE = {
@@ -25,5 +27,7 @@ export const ICON_PALLETTE = {
   ArrowLeft,
   X,
   LogOut,
+  ArrowLeftIcon,
   ChevronDown,
+  Check,
 };

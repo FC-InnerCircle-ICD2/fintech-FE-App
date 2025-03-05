@@ -19,8 +19,8 @@ export const paymentService = {
       token,
     ),
 
-  cancelPayment: (orderId: string) =>
-    api.post(API_ENDPOINTS.PAYMENT.CANCEL(orderId), {}),
+  cancelPayment: (token: string) =>
+    api.post(API_ENDPOINTS.PAYMENT.CANCEL, { token }),
 
   getTransactionList: ({
     startDate,
