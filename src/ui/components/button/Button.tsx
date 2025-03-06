@@ -12,6 +12,7 @@ const buttonVariants = cva(
           'bg-primary text-white hover:bg-gradient-10 disabled:bg-gradient-50 disabled:hover:bg-gradient-50',
         secondary:
           'bg-secondary text-white hover:bg-gradient-10 disabled:bg-gradient-50 disabled:hover:bg-gradient-50',
+        gray: 'bg-gray-100 text-gray-600 hover:bg-gradient-10 disabled:bg-gradient-50 disabled:hover:bg-gradient-50',
         destructive:
           'bg-destructive text-white hover:bg-gradient-10 disabled:bg-gradient-50 disabled:hover:bg-gradient-50',
         outline_default:
@@ -51,6 +52,7 @@ const iconVariants = cva('', {
     variant: {
       default: 'stroke-white',
       secondary: 'stroke-white',
+      gray: 'stroke-gray-600',
       destructive: 'stroke-white',
       outline_default: 'stroke-slate-400',
       outline_primary: 'stroke-blue-400',
