@@ -27,7 +27,7 @@ const CardCompanyCombobox = ({
       <DropdownMenuTrigger asChild>
         <Button
           variant='outline_default'
-          className='flex items-center justify-between w-full bg-white/20 border-white/30 text-white p-2 rounded-lg'
+          className='flex items-center justify-between w-full bg-white/20 border-white/30 text-white p-2 rounded-lg hover:bg-white/30'
         >
           {cardCompany || '카드사를 선택하세요'}
           <Icon name='ChevronDown' size={24} />

@@ -14,6 +14,7 @@ import { CARD_COMPANIES } from '@constants/card';
 import CardCompanyCombobox from '@ui/components/card/CardCompanyComboBox';
 import { ROUTES } from '@constants/routes';
 import { QUERY_KEY } from '@constants/apiEndpoints';
+import { validCards } from '@data/CardData';
 
 const AddCardPage = () => {
   const navigate = useNavigate();
@@ -76,7 +77,36 @@ const AddCardPage = () => {
       cardCompany: Yup.string().required('Card company is required'),
     }),
     onSubmit: (values) => {
-      mutate(values);
+      const cardData = validCards.find(
+        (card) => card.cardNumber === values.cardNumber,
+      );
+      if (!cardData) {
+        openDialog('alert', {
+          title: '카드 등록 실패',
+          description:
+            '카드 등록에 실패했습니다. \n카드 정보를 다시 확인해주세요.',
+        });
+        return;
+      }
+      if (
+        values.expirationPeriod !== cardData.expirationPeriod ||
+        values.cvc !== cardData.cvc ||
+        values.cardCompany !== cardData.cardCompany
+      ) {
+        openDialog('alert', {
+          title: '카드 등록 실패',
+          description:
+            '카드 등록에 실패했습니다. \n카드 정보를 다시 확인해주세요.',
+        });
+        return;
+      }
+
+      const cardDataWithRepresentative: CardRegisterReq = {
+        ...cardData,
+        isRepresentative: values.isRepresentative,
+      };
+
+      mutate(cardDataWithRepresentative);
     },
   });
 
