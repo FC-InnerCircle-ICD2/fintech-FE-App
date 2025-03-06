@@ -45,7 +45,7 @@ const QRDetailContent = ({
   }>({
     url: `${API_ENDPOINTS.PAYMENT.ORDER.SSE}?merchantId=${orderData.merchantId}&orderId=${orderData.orderId}`,
     onMessage: (data) => {
-      console.log(data);
+      console.log('sse data : ', data);
       setMessages(data.message);
     },
   });
@@ -61,19 +61,23 @@ const QRDetailContent = ({
       }
     },
     onError: (error: ApiResponseError) => {
-      console.log(error);
+      console.log('requestPayment error : ', error);
 
       let title = '결제 요청 실패.';
       let description = '결제 요청에 실패했습니다.\n다시 시도해주세요.';
       let errorNumber = 0;
 
-      for (const paymentApiError of paymentApiErrors) {
-        if (error.error.code === paymentApiError.code) {
-          title = paymentApiError.title;
-          description = paymentApiError.description;
-          errorNumber = paymentApiError.errorNumber;
-          break;
+      try {
+        for (const paymentApiError of paymentApiErrors) {
+          if (error.error.code === paymentApiError.code) {
+            title = paymentApiError.title;
+            description = error.error.message;
+            errorNumber = paymentApiError.errorNumber;
+            break;
+          }
         }
+      } catch (e) {
+        console.error('An error occurred:', e);
       }
 
       openDialog('alert', {
@@ -82,6 +86,9 @@ const QRDetailContent = ({
         confirm: () => {
           closeModal();
           switch (errorNumber) {
+            case 0:
+              navigate(ROUTES.PAYMENT.QR);
+              break;
             case 1:
               navigate(ROUTES.CARD.ADD, { state });
               break;
@@ -135,6 +142,13 @@ const QRDetailContent = ({
     });
   };
 
+  const handleBack = () => {
+    if (connected) {
+      disconnect();
+    }
+    navigate(ROUTES.PAYMENT.QR);
+  };
+
   return (
     <>
       {messages && (
@@ -143,7 +157,7 @@ const QRDetailContent = ({
             결제가 완료되었습니다.
           </div>
           <Button
-            onClick={handleCancel}
+            onClick={handleBack}
             className='mt-4 bg-blue-500 text-white hover:bg-blue-600 transition duration-200'
           >
             돌아가기
