@@ -84,6 +84,20 @@ export const useSSE = <T>({
         }, reconnectInterval);
       };
 
+      (eventSource as EventSource).addEventListener('payment-done', ((
+        event: MessageEvent,
+      ) => {
+        console.log('결제 완료 이벤트:', event);
+        try {
+          const cleanData = event.data.replace(/\\/g, '');
+          const data: T = JSON.parse(cleanData);
+          setLastMessageTime(Date.now());
+          onMessage?.(data);
+        } catch (error) {
+          console.error('메시지 파싱 오류:', error);
+        }
+      }) as EventListener);
+
       eventSourceRef.current = eventSource; // SSE 인스턴스 저장
     };
 
