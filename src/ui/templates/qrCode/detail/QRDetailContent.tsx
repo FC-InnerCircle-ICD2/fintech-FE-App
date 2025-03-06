@@ -20,6 +20,13 @@ interface QRDetailCardProps {
   token: string;
   expiredAt: number;
 }
+
+interface Message {
+  merchantId: number;
+  orderId: string;
+  status: string;
+}
+
 const QRDetailContent = ({
   orderData,
   token,
@@ -35,18 +42,16 @@ const QRDetailContent = ({
   };
 
   const [isPaymentLoading, setPaymentLoading] = useState(false);
-  const [messages, setMessages] = useState<string>('');
+  const [messages, setMessages] = useState<Message | undefined>(undefined);
   const tokenReq: PaymentRequestReq = { token: token };
 
   const { data: cardList } = useCardList();
   const { mutate: cancelPayment } = useCancelPayment();
-  const { connected, connect, disconnect } = useSSE<{
-    message: string;
-  }>({
+  const { connected, connect, disconnect } = useSSE<Message>({
     url: `${API_ENDPOINTS.PAYMENT.ORDER.SSE}?merchantId=${orderData.merchantId}&orderId=${orderData.orderId}`,
     onMessage: (data) => {
       console.log('sse data : ', data);
-      setMessages(data.message);
+      setMessages(data);
     },
   });
 
