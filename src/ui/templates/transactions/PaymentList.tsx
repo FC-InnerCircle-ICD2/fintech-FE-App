@@ -178,10 +178,19 @@ const PaymentList = () => {
                       {latestTransaction && (
                         <span
                           className={`px-2 py-1 rounded-full text-[10px] font-medium ${getStatusClass(
-                            latestTransaction.status,
+                            status?.value === 'APPROVE'
+                              ? paymentItem.transactions[
+                                  paymentItem.transactions.length - 1
+                                ].status
+                              : latestTransaction.status,
                           )}`}
                         >
-                          {latestTransaction.status}
+                          {status?.value === 'APPROVE'
+                            ? paymentItem.transactions[
+                                paymentItem.transactions.length - 1
+                              ].status
+                            : latestTransaction.status}
+                          {/* {latestTransaction.status} */}
                         </span>
                       )}
                       <p className='text-xs text-gray-400'>
