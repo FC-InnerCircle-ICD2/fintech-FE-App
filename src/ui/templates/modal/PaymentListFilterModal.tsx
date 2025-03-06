@@ -11,7 +11,7 @@ import { usePaymentFilterStore } from '@stores/paymentFilter';
 
 const options = [
   { label: '승인완료', value: 'APPROVED' },
-  { label: '승인취소', value: 'CANCELLED' },
+  { label: '승인취소', value: 'CANCELED' },
 ];
 
 const PaymentListFilterModal = () => {

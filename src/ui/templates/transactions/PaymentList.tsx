@@ -129,13 +129,8 @@ const PaymentList = () => {
             <ul className='flex flex-col gap-4'>
               {allPayments.map((paymentItem) => {
                 const hasTransaction = paymentItem.transactions.length > 0;
-                // const latestTransaction = hasTransaction
-                //   ? paymentItem.transactions[0]
-                //   : null;
                 const latestTransaction = hasTransaction
-                  ? paymentItem.transactions[
-                      paymentItem.transactions.length - 1
-                    ] // ✅ 마지막 아이템 선택
+                  ? paymentItem.transactions[0]
                   : null;
 
                 return (
