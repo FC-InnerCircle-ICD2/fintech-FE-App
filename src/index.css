@@ -32,3 +32,16 @@ body,
     overflow: hidden;
   }
 }
+
+input[type='date'] {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  width: 100%;
+  background-color: white;
+  color: #333;
+}

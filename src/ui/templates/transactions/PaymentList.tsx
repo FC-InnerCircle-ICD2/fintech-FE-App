@@ -8,7 +8,8 @@ import ErrorComponent from '@ui/components/error/ErrorComponent';
 import LoadingAnimation from '@ui/components/loading/LoadingAnimation';
 import PaymentHistoryDetailModal from '../modal/PaymentHistoryDetailModal';
 import Icon from '@ui/components/icon/Icon';
-import PaymentListFilter from './PaymentListFilter';
+import PaymentListFilterModal from '../modal/PaymentListFilterModal';
+import { usePaymentFilterStore } from '@stores/paymentFilter';
 
 /**
  * @todo 리스트 가상화 하기
@@ -42,32 +43,42 @@ const LIMIT_COUNT = 10;
  * 결제 내역 리스트 컴포넌트
  */
 const PaymentList = () => {
-  const today = new Date();
-  const formattedUTCDate = today.toISOString().split('T')[0]; // UTC 날짜 변환
   const { openModal } = useModal();
+  const { startDate, endDate, status } = usePaymentFilterStore();
 
   const { data, isFetchingNextPage, isError, fetchNextPage, hasNextPage } =
     useInfiniteQuery({
-      queryKey: [QUERY_KEY.MANAGEMENT.HISTORY],
+      queryKey: [
+        QUERY_KEY.MANAGEMENT.HISTORY,
+        startDate,
+        endDate,
+        status?.value,
+      ], // ✅ status.value만 의존성에 포함
       queryFn: async ({ pageParam = 0 }: { pageParam: number }) => {
-        const response = await api.get<PaymentHistoryResponse>(
-          API_ENDPOINTS.MANAGEMENT.HISTORY.LIST,
-          {
-            searchParams: {
-              startDate: '2020-01-01',
-              endDate: formattedUTCDate,
-              page: pageParam.toString(),
-              limit: LIMIT_COUNT.toString(),
-            },
-          },
-        );
+        const searchParams = new URLSearchParams({
+          startDate,
+          endDate,
+          page: pageParam.toString(),
+          limit: LIMIT_COUNT.toString(),
+        });
+
+        if (status?.value) {
+          searchParams.append('status', status.value.toString()); // ✅ status가 존재할 때만 추가
+        }
+
+        const queryString = searchParams.toString(); // ✅ 필요 없는 파라미터 자동 제거
+        const url = queryString
+          ? `${API_ENDPOINTS.MANAGEMENT.HISTORY.LIST}?${queryString}`
+          : API_ENDPOINTS.MANAGEMENT.HISTORY.LIST; // ✅ queryString이 없을 때는 원본 URL 사용
+
+        const response = await api.get<PaymentHistoryResponse>(url);
 
         if (response.ok) {
           return response.data;
         }
         return { payments: [] };
       },
-      initialPageParam: 0, // ✅ 필수: 첫 번째 요청의 기본 pageParam 값 설정
+      initialPageParam: 0,
       getNextPageParam: (lastPage, allPages) => {
         return lastPage.payments.length < LIMIT_COUNT
           ? undefined
@@ -102,7 +113,7 @@ const PaymentList = () => {
             rounded
             className='text-xs'
             onClick={() =>
-              openModal(<PaymentListFilter />, {
+              openModal(<PaymentListFilterModal />, {
                 enableOverlay: false,
                 enableOverlayClickClose: false,
               })
@@ -118,8 +129,13 @@ const PaymentList = () => {
             <ul className='flex flex-col gap-4'>
               {allPayments.map((paymentItem) => {
                 const hasTransaction = paymentItem.transactions.length > 0;
+                // const latestTransaction = hasTransaction
+                //   ? paymentItem.transactions[0]
+                //   : null;
                 const latestTransaction = hasTransaction
-                  ? paymentItem.transactions[0]
+                  ? paymentItem.transactions[
+                      paymentItem.transactions.length - 1
+                    ] // ✅ 마지막 아이템 선택
                   : null;
 
                 return (
@@ -141,7 +157,7 @@ const PaymentList = () => {
                         결제일시:{' '}
                         {latestTransaction &&
                           new Date(
-                            latestTransaction.completedAt,
+                            latestTransaction.requestedAt,
                           ).toLocaleString()}
                       </p>
                     </header>

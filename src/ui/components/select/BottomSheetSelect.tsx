@@ -5,7 +5,7 @@ import Icon from '../icon/Icon';
 import { cn } from '@lib/shadcn/lib/utils';
 import Button from '../button/Button';
 
-interface Option {
+export interface SelectOption {
   label: string;
   value: string | number | null;
 }
@@ -13,24 +13,30 @@ interface Option {
 interface BottomSheetSelectProps {
   selectName?: string;
   placeholder?: string;
-  options?: Option[];
+  options?: SelectOption[];
+  value?: SelectOption | null; // 외부에서 선택된 값 관리
+  onChange?: (value: SelectOption | null) => void; // 변경 핸들러 추가
 }
 
 const BottomSheetSelect = ({
-  selectName = 'Select an Option ',
+  selectName = 'Select an Option',
   placeholder = 'Select an option',
   options = [],
+  value,
+  onChange,
 }: BottomSheetSelectProps) => {
-  const [selected, setSelected] = useState<Option | null>(null);
+  const [selected, setSelected] = useState<SelectOption | null>(value || null);
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleSelect = (option: Option) => {
+  const handleSelect = (option: SelectOption) => {
     setSelected(option);
+    onChange?.(option); // onChange가 있으면 호출
     setIsOpen(false);
   };
 
   const handleClearSelection = () => {
     setSelected(null);
+    onChange?.(null); // onChange가 있으면 null 전달
   };
 
   return (
@@ -91,7 +97,7 @@ const BottomSheetSelect = ({
                       <li
                         key={option.value}
                         className={cn(
-                          'py-2 flex justify-between items-center  cursor-pointer rounded-xl',
+                          'py-2 flex justify-between items-center cursor-pointer rounded-xl',
                           selected?.value === option.value
                             ? 'font-semibold text-primary'
                             : 'text-gray-600',
@@ -105,26 +111,6 @@ const BottomSheetSelect = ({
                       </li>
                     ))}
                   </ul>
-
-                  {/* Clear Selection & Close Button */}
-                  {/* <div className='mt-4 flex gap-2'>
-                    {selected && (
-                      <Button
-                        variant={'gray'}
-                        size={'large'}
-                        onClick={handleClearSelection}
-                      >
-                        선택 초기화
-                      </Button>
-                    )}
-                    <Button
-                      variant={'secondary'}
-                      size={'large'}
-                      onClick={() => setIsOpen(false)}
-                    >
-                      확인
-                    </Button>
-                  </div> */}
                 </motion.div>
               </motion.div>
             )}
