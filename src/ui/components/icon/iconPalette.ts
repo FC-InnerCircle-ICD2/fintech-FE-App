@@ -15,6 +15,7 @@ import {
   Check,
   ListFilter,
   RotateCcw,
+  Calendar,
 } from 'lucide-react';
 
 export const ICON_PALLETTE = {
@@ -34,4 +35,5 @@ export const ICON_PALLETTE = {
   Check,
   ListFilter,
   RotateCcw,
+  Calendar,
 };

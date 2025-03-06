@@ -44,7 +44,7 @@ const LIMIT_COUNT = 10;
  */
 const PaymentList = () => {
   const { openModal } = useModal();
-  const { startDate, endDate, status } = usePaymentFilterStore();
+  const { startDate, endDate, status, resetFilters } = usePaymentFilterStore();
 
   const { data, isFetchingNextPage, isError, fetchNextPage, hasNextPage } =
     useInfiniteQuery({
@@ -56,7 +56,6 @@ const PaymentList = () => {
       ], // ✅ status.value만 의존성에 포함
       queryFn: async ({ pageParam = 0 }: { pageParam: number }) => {
         const searchParams = new URLSearchParams({
-          startDate,
           endDate,
           page: pageParam.toString(),
           limit: LIMIT_COUNT.toString(),
@@ -105,25 +104,62 @@ const PaymentList = () => {
     <>
       <div className='w-full mx-auto px-4 pt-4 pb-20 bg-gray-50'>
         <div className='flex justify-between items-center pt-8 pb-4'>
-          <div></div>
-          <Button
-            variant={'outline_default'}
-            width={'fit'}
-            size={'medium'}
-            rounded
-            className='text-xs'
-            onClick={() =>
-              openModal(<PaymentListFilterModal />, {
-                enableOverlay: false,
-                enableOverlayClickClose: false,
-              })
-            }
-          >
-            <Icon name='ListFilter' size={16} /> Filter
-          </Button>
+          {/* ✅ 현재 필터링된 값 표시 */}
+          <div className='flex items-center gap-2 text-xs text-gray-600'>
+            {status ? (
+              <span className='px-2 py-1 bg-gray-100 rounded-full text-gray-500'>
+                {status.label}
+              </span>
+            ) : (
+              <span className='px-2 py-1 bg-gray-100 rounded-full text-gray-500'>
+                상태 전체
+              </span>
+            )}
+
+            <span className='px-2 py-1 bg-gray-100 rounded-full text-gray-500'>
+              {startDate} ~ {endDate}
+            </span>
+            {/* ✅ 필터가 적용된 경우만 초기화 버튼 표시 */}
+            {(status ||
+              startDate ||
+              endDate !== new Date().toISOString().split('T')[0]) && (
+              <Button
+                onClick={resetFilters}
+                variant={'outline_default'}
+                width={'fit'}
+                size={'small'}
+                rounded
+                className='text-xs'
+              >
+                <Icon name='RotateCcw' size={14} />
+              </Button>
+            )}
+          </div>
+
+          <div className='flex items-center gap-2'>
+            <Button
+              variant={'secondary'}
+              width={'fit'}
+              size={'small'}
+              rounded
+              className='text-[10px]'
+              onClick={() =>
+                openModal(<PaymentListFilterModal />, {
+                  enableOverlay: false,
+                  enableOverlayClickClose: false,
+                })
+              }
+            >
+              <Icon name='ListFilter' size={12} /> Filter
+            </Button>
+          </div>
         </div>
         {allPayments.length === 0 ? (
-          <p className='text-gray-500'>결제 내역이 없습니다.</p>
+          <div className='flex items-center justify-center h-full'>
+            <p className='text-gray-400 font-medium text-lg pb-[15dvh]'>
+              결제 내역이 없습니다.
+            </p>
+          </div>
         ) : (
           <div className='flex flex-col gap-4'>
             <ul className='flex flex-col gap-4'>
