@@ -9,7 +9,7 @@ export const API_ENDPOINTS = {
     ORDER: {
       INFO: (orderToken: string) => `api/v1/payments/${orderToken}/info`, // 주문 상세 정보 조회
       // 임시
-      SSE: 'api/v1/p/user/sse/connect',
+      SSE: '/api/v1/p/user/sse/connect',
       SSE_TEMP: 'payment/order/sse-temp',
     },
     REQUEST: `api/v1/p/user/authentication/simple`, // 간편 결제 요청

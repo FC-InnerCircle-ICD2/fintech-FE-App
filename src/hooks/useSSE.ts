@@ -40,7 +40,7 @@ export const useSSE = <T>({
     const establishConnection = () => {
       const token = localStorage.getItem(ACCESS_TOKEN);
       const eventSource = new EventSourcePolyfill(
-        `${import.meta.env.VITE_API_URL}${url}`,
+        `${import.meta.env.VITE_API_URL}${url.startsWith('/') ? url : `/${url}`}`,
         {
           headers: {
             Authorization: token ? `Bearer ${token}` : '',
