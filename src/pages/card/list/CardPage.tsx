@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import PageLayout from '@ui/layouts/PageLayout';
 import {
   Carousel,
@@ -7,23 +8,36 @@ import {
   CarouselItem,
   type CarouselApi,
 } from '@lib/shadcn/components/ui/carousel';
-import { DUMMY_CARD_LIST } from '@mocks/config/dummy';
 import CardItem from '@ui/components/card/CardItem';
-import NewCard from '@ui/components/card/NewCard';
 import Button from '@ui/components/button/Button';
+import LoadingAnimation from '@ui/components/loading/LoadingAnimation';
+import ErrorComponent from '@ui/components/error/ErrorComponent';
 import { ROUTES } from '@constants/routes';
+import { QUERY_KEY } from '@constants/apiEndpoints';
+
+import useModal from '@hooks/useModal';
+import { useRepresentativeCard } from '@hooks/useRepresenCard';
+import { useDeleteCard } from '@hooks/useDeleteCard';
+import { useCardList } from '@hooks/queries/useCard';
+import type { CardData } from '@type/responses/card';
 
 const CardPage = () => {
   const navigate = useNavigate();
+  const { openDialog, closeModal } = useModal();
+  const queryClient = useQueryClient();
+  const { data, isLoading, isError } = useCardList();
+  const { setRepresentativeCard } = useRepresentativeCard();
+  const { deleteCard } = useDeleteCard();
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [api, setApi] = useState<CarouselApi>();
 
   useEffect(() => {
-    console.log(api);
-
-    api?.on('select', () => {
-      setCurrentIndex(api?.selectedScrollSnap() + 1 || 0);
-    });
+    if (api) {
+      api.on('select', () => {
+        setCurrentIndex(api.selectedScrollSnap() + 1 || 0);
+      });
+    }
   }, [api]);
 
   useEffect(() => {
@@ -31,16 +45,87 @@ const CardPage = () => {
   }, [currentIndex]);
 
   const handleNewCardClick = () => {
-    navigate(`${ROUTES.CARD.ADD}`);
+    navigate(ROUTES.CARD.ADD);
   };
 
   const handleRepresentativeCardClick = () => {
-    console.log('주 카드로 설정', currentIndex);
+    const currentCard = data?.[currentIndex - 1];
+    if (!currentCard) return;
+
+    if (currentCard.isRepresentative) {
+      openDialog('alert', {
+        title: '주 카드 설정',
+        description: '이미 주 카드로 설정되어 있습니다.',
+      });
+    } else {
+      openDialog('confirm', {
+        title: '주 카드 설정',
+        description: '주 카드로 설정하시겠습니까?',
+        confirm: () => {
+          setRepresentativeCard.mutate(currentCard.id, {
+            onSuccess: (res) => {
+              if (res.ok) {
+                if (res.data) {
+                  queryClient.setQueryData(
+                    [QUERY_KEY.CARD.LIST],
+                    (
+                      oldData: { ok: boolean; data: CardData[] } | undefined,
+                    ) => {
+                      if (!oldData || !Array.isArray(oldData.data)) {
+                        return oldData;
+                      }
+                      return {
+                        ...oldData,
+                        data: oldData.data.map((card) =>
+                          card.id === currentCard.id
+                            ? { ...card, isRepresentative: true }
+                            : { ...card, isRepresentative: false },
+                        ),
+                      };
+                    },
+                  );
+                }
+              } else {
+                openDialog('alert', {
+                  title: '대표 카드 설정 실패',
+                  description: '대표 카드 설정에 실패했습니다.',
+                });
+              }
+              closeModal();
+            },
+            onError: (error) => {
+              console.error('Mutation onError executed', error);
+              openDialog('alert', {
+                title: '오류 발생',
+                description: '카드 설정 중 오류가 발생했습니다.',
+              });
+              closeModal();
+            },
+          });
+        },
+      });
+    }
   };
 
   const handleDeleteCardClick = () => {
-    console.log('카드 삭제', currentIndex);
+    const currentCard = data?.[currentIndex - 1];
+    if (!currentCard) return;
+    openDialog('confirm', {
+      title: '카드 삭제',
+      description: '카드를 삭제하시겠습니까?',
+      confirm: () => {
+        deleteCard.mutate(currentCard.id);
+      },
+    });
   };
+
+  if (isLoading) {
+    return <LoadingAnimation />;
+  }
+
+  if (isError || !data) {
+    return <ErrorComponent />;
+  }
 
   return (
     <PageLayout
@@ -58,30 +143,36 @@ const CardPage = () => {
         )`,
       }}
     >
-      <div className='bg-white/10 backdrop-blur-sm rounded-2xl py-6 mb-6 flex'>
+      <div className='bg-white/10 backdrop-blur-sm rounded-2xl pt-6 mb-6 flex'>
         <Carousel className='w-full' setApi={setApi}>
-          <CarouselContent className='carouselcontent mx-8 px-2'>
-            {DUMMY_CARD_LIST.length > 0 ? (
+          <CarouselContent className='ml-4 mr-8 pb-6'>
+            {data && data.length > 0 ? (
               <>
-                {DUMMY_CARD_LIST.map((card) => (
-                  <CarouselItem key={card.id} className='carouselitem'>
+                {data.map((card, index) => (
+                  <CarouselItem key={index} className='basis-auto'>
                     <CardItem card={card} />
                   </CarouselItem>
                 ))}
-                <CarouselItem onClick={handleNewCardClick}>
-                  <NewCard />
+                <CarouselItem
+                  key={data.length + 1}
+                  className='basis-auto'
+                  onClick={handleNewCardClick}
+                >
+                  <CardItem variant='newCard' />
                 </CarouselItem>
               </>
             ) : (
-              <CarouselItem onClick={handleNewCardClick}>
-                <NewCard />
+              <CarouselItem onClick={handleNewCardClick} className='basis-auto'>
+                <CardItem variant='newCard' />
               </CarouselItem>
             )}
           </CarouselContent>
         </Carousel>
       </div>
-      {DUMMY_CARD_LIST.length > 0 && (
-        <div className='flex flex-col items-center'>
+      {data && data.length > 0 && (
+        <div
+          className={`flex flex-col items-center ${currentIndex === data.length + 1 ? 'invisible' : ''}`}
+        >
           <Button
             className=' text-white px-6 py-3 rounded-full mb-5'
             variant='default'

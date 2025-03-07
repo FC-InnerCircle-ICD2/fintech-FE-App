@@ -10,6 +10,12 @@ import {
   ArrowLeft,
   X,
   LogOut,
+  ArrowLeftIcon,
+  ChevronDown,
+  Check,
+  ListFilter,
+  RotateCcw,
+  Calendar,
 } from 'lucide-react';
 
 export const ICON_PALLETTE = {
@@ -24,4 +30,10 @@ export const ICON_PALLETTE = {
   ArrowLeft,
   X,
   LogOut,
+  ArrowLeftIcon,
+  ChevronDown,
+  Check,
+  ListFilter,
+  RotateCcw,
+  Calendar,
 };

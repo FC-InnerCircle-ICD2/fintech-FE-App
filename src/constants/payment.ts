@@ -1,13 +1,12 @@
 /**
  * 결제 상태 타입
  * @param APPROVED - 승인완료
- * @param CANCELLED - 승인취소
+ * @param CANCELED - 승인취소
  * * @param REFUNDED - 환불
  */
 export const TRANSACTION_STATUS = {
   APPROVED: 'APPROVED',
-  CANCELLED: 'CANCELLED',
-  REFUNDED: 'REFUNDED',
+  CANCELED: 'CANCELED',
 } as const;
 
 /**

@@ -19,8 +19,8 @@ export const paymentService = {
       token,
     ),
 
-  cancelPayment: (orderId: string) =>
-    api.post(API_ENDPOINTS.PAYMENT.CANCEL(orderId), {}),
+  cancelPayment: (token: string) =>
+    api.post(API_ENDPOINTS.PAYMENT.CANCEL, { token }),
 
   getTransactionList: ({
     startDate,
@@ -28,7 +28,7 @@ export const paymentService = {
     status,
     page,
     limit,
-  }: TransactionListFilter) => {
+  }: Required<TransactionListFilter>) => {
     return api.get<{ payments: TransactionsRes[] }>(
       API_ENDPOINTS.MANAGEMENT.HISTORY.LIST,
       {

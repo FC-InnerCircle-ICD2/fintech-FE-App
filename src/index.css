@@ -14,6 +14,12 @@
   padding-bottom: env(safe-area-inset-bottom);
 }
 
+html,
+body,
+#root {
+  height: 100%;
+}
+
 @layer base {
   body {
     min-width: 375px;
@@ -24,5 +30,28 @@
   }
   body:has([data-enable-background-scroll='false']) {
     overflow: hidden;
+  }
+}
+
+input[type='date'] {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid;
+  border-color: rgb(229 231 235 / var(--tw-border-opacity, 1));
+  border-radius: 999px;
+  font-size: 0.75rem;
+  width: 100%;
+  background-color: var();
+  outline: none;
+  color: #333;
+  user-select: none;
+  -webkit-user-select: none;
+  &::placeholder {
+    color: rgb(156 163 175 / var(--tw-text-opacity, 1));
+  }
+  &:focus {
+    border-color: rgb(209 213 219 / var(--tw-border-opacity, 1));
   }
 }

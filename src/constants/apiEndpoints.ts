@@ -9,11 +9,11 @@ export const API_ENDPOINTS = {
     ORDER: {
       INFO: (orderToken: string) => `api/v1/payments/${orderToken}/info`, // 주문 상세 정보 조회
       // 임시
-      SSE: 'api/v1/p/user/sse/connect',
+      SSE: '/api/v1/p/user/sse/connect',
       SSE_TEMP: 'payment/order/sse-temp',
     },
     REQUEST: `api/v1/p/user/authentication/simple`, // 간편 결제 요청
-    CANCEL: (orderId: string) => `api/v1/payments/${orderId}/cancel`, // QR 결제 취소
+    CANCEL: 'api/v1/p/user/request/cancel', // QR 결제 취소
   },
   MANAGEMENT: {
     HISTORY: {
@@ -25,8 +25,8 @@ export const API_ENDPOINTS = {
   CARD: {
     REGISTER: 'api/v1/p/user/cards', // 카드 등록
     LIST: 'api/v1/p/user/cards', // 카드 목록 조회
-    SET_REPRESENTATIVE: (cardId: string) => `api/v1/p/user/cards/${cardId}`, // 주 카드 설정
-    DELETE: (cardId: string) => `api/v1/p/user/cards/${cardId}/delete`, // 카드 삭제
+    SET_REPRESENTATIVE: (cardId: number) => `api/v1/p/user/cards/${cardId}`, // 주 카드 설정
+    DELETE: (cardId: number) => `api/v1/p/user/cards/${cardId}`, // 카드 삭제
   },
 } as const;
 

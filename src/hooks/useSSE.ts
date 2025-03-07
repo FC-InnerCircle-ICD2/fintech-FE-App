@@ -40,7 +40,7 @@ export const useSSE = <T>({
     const establishConnection = () => {
       const token = localStorage.getItem(ACCESS_TOKEN);
       const eventSource = new EventSourcePolyfill(
-        `${import.meta.env.VITE_API_URL}${url}`,
+        `${import.meta.env.VITE_API_URL}${url.startsWith('/') ? url : `/${url}`}`,
         {
           headers: {
             Authorization: token ? `Bearer ${token}` : '',
@@ -83,6 +83,20 @@ export const useSSE = <T>({
           establishConnection();
         }, reconnectInterval);
       };
+
+      (eventSource as EventSource).addEventListener('payment-done', ((
+        event: MessageEvent,
+      ) => {
+        console.log('결제 완료 이벤트:', event);
+        try {
+          const cleanData = event.data.replace(/\\/g, '');
+          const data: T = JSON.parse(cleanData);
+          setLastMessageTime(Date.now());
+          onMessage?.(data);
+        } catch (error) {
+          console.error('메시지 파싱 오류:', error);
+        }
+      }) as EventListener);
 
       eventSourceRef.current = eventSource; // SSE 인스턴스 저장
     };

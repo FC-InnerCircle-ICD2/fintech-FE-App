@@ -9,43 +9,101 @@ import { useMutation } from '@tanstack/react-query';
 import LoadingAnimation from '@ui/components/loading/LoadingAnimation';
 import type { OrderInfoJwtRes } from '@type/responses/payment';
 import type { PaymentRequestReq } from '@type/requests/payment';
+import { useCancelPayment } from '@hooks/queries/usePayments';
+import { useCardList } from '@hooks/queries/useCard';
+import useModal from '@hooks/useModal';
+import type { ApiResponseError } from '@lib/apiClient';
+import { paymentApiErrors } from '@constants/error';
 
 interface QRDetailCardProps {
   orderData: OrderInfoJwtRes;
   token: string;
+  expiredAt: number;
 }
-const QRDetailContent = ({ orderData, token }: QRDetailCardProps) => {
+
+interface Message {
+  merchantId: number;
+  orderId: string;
+  status: string;
+}
+
+const QRDetailContent = ({
+  orderData,
+  token,
+  expiredAt,
+}: QRDetailCardProps) => {
   const navigate = useNavigate();
+  const { openDialog, closeModal } = useModal();
+
+  const state = {
+    token: token,
+    expiredAt: expiredAt,
+    returnPath: ROUTES.PAYMENT.DETAIL,
+  };
 
   const [isPaymentLoading, setPaymentLoading] = useState(false);
-  const [messages, setMessages] = useState<string>('');
+  const [messages, setMessages] = useState<Message | undefined>(undefined);
   const tokenReq: PaymentRequestReq = { token: token };
 
-  const { connected, connect, disconnect } = useSSE<{
-    message: string;
-  }>({
+  const { data: cardList } = useCardList();
+  const { mutate: cancelPayment } = useCancelPayment();
+  const { connected, connect, disconnect } = useSSE<Message>({
     url: `${API_ENDPOINTS.PAYMENT.ORDER.SSE}?merchantId=${orderData.merchantId}&orderId=${orderData.orderId}`,
     onMessage: (data) => {
-      console.log(data);
-      setMessages(data.message);
+      console.log('sse data : ', data);
+      setMessages(data);
     },
   });
 
-  const { mutate } = useMutation({
+  const { mutate: requestPayment } = useMutation({
     mutationKey: [QUERY_KEY.PAYMENT.REQUEST],
     mutationFn: async () => await paymentService.requestPayment(tokenReq),
     onSuccess: (res) => {
       console.log('res : ', res);
       if (res.ok) {
         connect();
-
-        setTimeout(() => {
-          setMessages('결제가 완료되었습니다.');
-        }, 2000);
+        console.log('connected : ', res.data);
       }
     },
-    onError: (error) => {
-      console.log(error);
+    onError: (error: ApiResponseError) => {
+      console.log('requestPayment error : ', error);
+
+      let title = '결제 요청 실패.';
+      let description = '결제 요청에 실패했습니다.\n다시 시도해주세요.';
+      let errorNumber = 0;
+
+      try {
+        for (const paymentApiError of paymentApiErrors) {
+          if (error.error.code === paymentApiError.code) {
+            title = paymentApiError.title;
+            description = error.error.message;
+            errorNumber = paymentApiError.errorNumber;
+            break;
+          }
+        }
+      } catch (e) {
+        console.error('An error occurred:', e);
+      }
+
+      openDialog('alert', {
+        title: title,
+        description: description,
+        confirm: () => {
+          closeModal();
+          switch (errorNumber) {
+            case 0:
+              navigate(ROUTES.PAYMENT.QR);
+              break;
+            case 1:
+              navigate(ROUTES.CARD.ADD, { state });
+              break;
+            case 2:
+              navigate(ROUTES.PAYMENT.QR);
+              break;
+          }
+        },
+      });
+      setPaymentLoading(false);
     },
   });
 
@@ -56,13 +114,40 @@ const QRDetailContent = ({ orderData, token }: QRDetailCardProps) => {
   }, [messages]);
 
   const handlePayment = () => {
-    mutate();
-    console.log('결제 요청');
+    if (cardList?.length === 0) {
+      openDialog('alert', {
+        title: '카드 등록',
+        description: '결제를 위해 카드를 등록해주세요.',
+        confirm: () => {
+          closeModal();
+          navigate(ROUTES.CARD.ADD, { state });
+        },
+      });
+      return;
+    }
     setPaymentLoading(true);
-    console.log('결제 요청 완료');
+
+    requestPayment();
   };
 
   const handleCancel = () => {
+    if (connected) {
+      disconnect();
+    }
+    cancelPayment(token, {
+      onSuccess: () => {
+        closeModal();
+        navigate(ROUTES.PAYMENT.QR);
+      },
+      onError: (error) => {
+        console.log(error);
+        closeModal();
+        navigate(ROUTES.PAYMENT.QR);
+      },
+    });
+  };
+
+  const handleBack = () => {
     if (connected) {
       disconnect();
     }
@@ -77,7 +162,7 @@ const QRDetailContent = ({ orderData, token }: QRDetailCardProps) => {
             결제가 완료되었습니다.
           </div>
           <Button
-            onClick={handleCancel}
+            onClick={handleBack}
             className='mt-4 bg-blue-500 text-white hover:bg-blue-600 transition duration-200'
           >
             돌아가기
